@@ -1,4 +1,5 @@
 import pygame
+import random
 
 # ---const--- #
 # grid
@@ -11,6 +12,7 @@ SNAKE_COLOUR = (80, 220, 120)
 MAP_COLOUR = (20, 20, 20)
 UI_COLOUR = (245, 245, 245)
 TEXT_COLOUR = (30, 30, 30)
+APPLE_COLOUR = (220, 60, 60)
 # --- layout --- #
 LEFT_MARGIN = 40
 TOP_MARGIN = 40
@@ -59,6 +61,11 @@ def quantum_transit(position: tuple[int, int]) -> tuple[int, int]:
     return (x, y)
 
 
+def draw_map(screen) -> None:
+    map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)
+    pygame.draw.rect(screen, MAP_COLOUR, map_rect)
+
+
 def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
     for segment in snake_body:
         x, y = segment
@@ -69,9 +76,15 @@ def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
         pygame.draw.rect(screen, SNAKE_COLOUR, rect)
 
 
-def draw_map(screen) -> None:
-    map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)
-    pygame.draw.rect(screen, MAP_COLOUR, map_rect)
+# similar to draw a snake
+def draw_apple(screen, apple_pos: tuple[int, int]) -> None:
+    x, y = apple_pos
+
+    rect = pygame.Rect(
+        MAP_X + x * GRID_SIZE, MAP_Y + y * GRID_SIZE, GRID_SIZE, GRID_SIZE
+    )
+
+    pygame.draw.rect(screen, APPLE_COLOUR, rect)
 
 
 # for test not completed
@@ -108,6 +121,18 @@ def handle_events(
     return game_running, direction
 
 
+def generate_and_get_apple_position(
+    snake_body: list[tuple[int, int]],
+) -> tuple[int, int]:
+    while True:
+        position = (
+            random.randint(0, GRID_WIDTH - 1),
+            random.randint(0, GRID_HEIGHT - 1),
+        )
+        if position not in snake_body:
+            return position
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -123,7 +148,8 @@ def main():
     # snake direction
     directions = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
     direction = directions["RIGHT"]  # default direction
-
+    # apple
+    apple_pos = generate_and_get_apple_position(snake_body)
     # main loop
     while game_running:
         # event handle (handle events like key press)
@@ -134,6 +160,7 @@ def main():
         screen.fill(BACKGROUND_COLOUR)
         draw_map(screen)
         draw_snake(screen, snake_body)
+        draw_apple(screen, apple_pos)
         draw_ui(screen, font)
         pygame.display.flip()  # draw all
 
