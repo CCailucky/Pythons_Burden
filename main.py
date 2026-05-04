@@ -2,23 +2,44 @@ import pygame
 
 # ---const--- #
 # grid
-GRID_SIZE = 30
-GRID_WIDTH = 25
-GRID_HEIGHT = 20
+GRID_SIZE = 20
+GRID_WIDTH = 40
+GRID_HEIGHT = 40
 # colour
 BACKGROUND_COLOUR = (30, 30, 30)
 SNAKE_COLOUR = (80, 220, 120)
+MAP_COLOUR = (20, 20, 20)
+UI_COLOUR = (245, 245, 245)
+TEXT_COLOUR = (30, 30, 30)
+# --- layout --- #
+LEFT_MARGIN = 40
+TOP_MARGIN = 40
+RIGHT_MARGIN = 40
+BOTTOM_MARGIN = 40
+UI_GAP = 40
+# MAP width
+MAP_WIDTH = GRID_SIZE * GRID_WIDTH  # 800
+MAP_HEIGHT = GRID_SIZE * GRID_HEIGHT  # 800
+# map left top corner
+MAP_X = LEFT_MARGIN
+MAP_Y = TOP_MARGIN
+# UI
+UI_WIDTH = MAP_WIDTH // 2
+UI_HEIGHT = MAP_HEIGHT
+UI_X = MAP_X + MAP_WIDTH + UI_GAP
+UI_Y = MAP_Y
 # screen
-SCREEN_WIDTH = GRID_SIZE * GRID_WIDTH
-SCREEN_HEIGHT = GRID_SIZE * GRID_HEIGHT
-
-
+SCREEN_WIDTH = LEFT_MARGIN + MAP_WIDTH + UI_GAP + UI_WIDTH + RIGHT_MARGIN
+SCREEN_HEIGHT = TOP_MARGIN + MAP_HEIGHT + BOTTOM_MARGIN
 
 
 def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
     for segment in snake_body:
         x, y = segment
-        rect = pygame.Rect(x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE)
+        # start from (MAP_X, MAP_Y)
+        rect = pygame.Rect(
+            MAP_X + x * GRID_SIZE, MAP_Y + y * GRID_SIZE, GRID_SIZE, GRID_SIZE
+        )
         pygame.draw.rect(screen, SNAKE_COLOUR, rect)
 
 
@@ -31,17 +52,34 @@ def move_snake(snake_body: list[tuple[int, int]], direction: tuple[int, int]) ->
     snake_body.pop()  # pop the tail
 
 
+def draw_map(screen) -> None:
+    map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)
+    pygame.draw.rect(screen, MAP_COLOUR, map_rect)
+
+# for test not completed
+def draw_ui(screen, font) -> None:
+    ui_rect = pygame.Rect(UI_X, UI_Y, UI_WIDTH, UI_HEIGHT)
+    pygame.draw.rect(screen, UI_COLOUR, ui_rect)
+
+    title_text = font.render("Python's Burden", True, TEXT_COLOUR)
+    screen.blit(title_text, (UI_X + 20, UI_Y + 20))
+
+    control_text = font.render("Arrow Keys: Move", True, TEXT_COLOUR)
+    screen.blit(control_text, (UI_X + 20, UI_Y + 70))
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Python's Burden: Escape from COMP9001")
     clock = pygame.time.Clock()
 
-
     # ---arguments--- #
     game_running = True
+    # font
+    font = pygame.font.Font(None, 28)
     # snake information
-    snake_body = [(5, 10), (4, 10), (3, 10)]
+    snake_body = [(20, 20), (19, 20), (18, 20)]
     # snake direction
     directions = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
     direction = directions["RIGHT"]  # default direction
@@ -63,9 +101,14 @@ def main():
                     direction = directions["RIGHT"]
         move_snake(snake_body, direction)
         screen.fill(BACKGROUND_COLOUR)
+
+        #draw
+        draw_map(screen)
         draw_snake(screen, snake_body)
+        draw_ui(screen, font)
         pygame.display.flip()  # draw all
-        clock.tick(5)  # FPS = 5
+
+        clock.tick(8)  # FPS = 5
     pygame.quit()
 
 
