@@ -98,15 +98,22 @@ def draw_apple(screen, apple_pos: tuple[int, int]) -> None:
 
 
 # for test not completed
-def draw_ui(screen, font) -> None:
+def draw_ui(screen, font, lives: int, game_over: bool) -> None:
     ui_rect = pygame.Rect(UI_X, UI_Y, UI_WIDTH, UI_HEIGHT)
     pygame.draw.rect(screen, UI_COLOUR, ui_rect)
-
+    
     title_text = font.render("Python's Burden", True, TEXT_COLOUR)
     screen.blit(title_text, (UI_X + 20, UI_Y + 20))
 
     control_text = font.render("Arrow Keys: Move", True, TEXT_COLOUR)
     screen.blit(control_text, (UI_X + 20, UI_Y + 70))
+
+    lives_text = font.render(f"Lives: {lives}", True, TEXT_COLOUR)
+    screen.blit(lives_text, (UI_X + 20, UI_Y + 120))
+
+    if game_over:
+        game_over_text = font.render("Game Over", True, TEXT_COLOUR)
+        screen.blit(game_over_text, (UI_X + 20, UI_Y + 170))
 
 
 def handle_events(
@@ -147,6 +154,25 @@ def check_apple_eaten(next_head: tuple[int, int], apple_pos: tuple[int, int]) ->
     return next_head == apple_pos
 
 
+def check_self_collision(
+    next_head: tuple[int, int], snake_body: list[tuple[int, int]], apple_eaten: bool
+) -> bool:
+    # tail wont disappear so the tail will be included to check the collision
+    if apple_eaten:
+        return next_head in snake_body
+    # snake_body[:-1] for NO collision with the tail, because the tail will disappear in the next move
+    return next_head in snake_body[:-1]
+
+
+def reset_snake(
+    directions: dict[str, tuple[int, int]],
+) -> tuple[list[tuple[int, int]], tuple[int, int]]:
+    snake_body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
+    direction = directions["RIGHT"]
+
+    return snake_body, direction
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -155,31 +181,48 @@ def main():
 
     # ---arguments--- #
     game_running = True
+    game_over = False
     # font
     font = pygame.font.Font(None, 28)
     # snake information
-    snake_body = [(20, 20), (19, 20), (18, 20)]
+    snake_body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
     # snake direction
     directions = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
     direction = directions["RIGHT"]  # default direction
     # apple
     apple_pos = spawn_and_get_apple_position(snake_body)
+    # life
+    lives = 3
+
     # main loop
     while game_running:
+
         # event handle (handle events like key press)
         game_running, direction = handle_events(game_running, direction, directions)
-        # next_head_pos for checking whether the apple is eaten
-        next_head = get_next_head_pos(snake_body, direction)
-        apple_eaten = check_apple_eaten(next_head, apple_pos)
-        if apple_eaten:
-            apple_pos = spawn_and_get_apple_position(snake_body)
-        move_snake(snake_body, next_head, apple_eaten)
+
+        if not game_over:
+            # next_head_pos for checking whether the apple is eaten
+            next_head = get_next_head_pos(snake_body, direction)
+            apple_eaten = check_apple_eaten(next_head, apple_pos)
+            # is collided
+            if check_self_collision(next_head, snake_body, apple_eaten):
+                lives -= 1
+                if lives <= 0:
+                    game_over = True
+                else:
+                    snake_body, direction = reset_snake(directions)
+                    apple_pos = spawn_and_get_apple_position(snake_body)
+            else:
+                move_snake(snake_body, next_head, apple_eaten)
+                if apple_eaten:
+                    apple_pos = spawn_and_get_apple_position(snake_body)
+
         # draw
         screen.fill(BACKGROUND_COLOUR)
         draw_map(screen)
         draw_snake(screen, snake_body)
         draw_apple(screen, apple_pos)
-        draw_ui(screen, font)
+        draw_ui(screen, font, lives, game_over)
         pygame.display.flip()  # draw all
 
         clock.tick(8)  # FPS
