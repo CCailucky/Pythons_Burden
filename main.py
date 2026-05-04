@@ -35,15 +35,25 @@ SCREEN_WIDTH = LEFT_MARGIN + MAP_WIDTH + UI_GAP + UI_WIDTH + RIGHT_MARGIN
 SCREEN_HEIGHT = TOP_MARGIN + MAP_HEIGHT + BOTTOM_MARGIN
 
 
-def move_snake(snake_body: list[tuple[int, int]], direction: tuple[int, int]) -> None:
+def move_snake(
+    snake_body: list[tuple[int, int]], next_head: tuple[int, int], should_grow: bool
+) -> None:
+    snake_body.insert(0, next_head)  # insert new head into snake_body[0]
+    if not should_grow:
+        snake_body.pop()  # pop the tail
+
+
+def get_next_head_pos(
+    snake_body: list[tuple[int, int]], direction: tuple[int, int]
+) -> tuple[int, int]:
     head_x, head_y = snake_body[0]
     move_x, move_y = direction
 
-    new_head = (head_x + move_x, head_y + move_y)
+    next_head = (head_x + move_x, head_y + move_y)
     # check whether quantum transit is triggered
-    new_head = quantum_transit(new_head)
-    snake_body.insert(0, new_head)  # insert new head into snake_body[0]
-    snake_body.pop()  # pop the tail
+    next_head = quantum_transit(next_head)
+
+    return next_head
 
 
 # transit the snake from one place to another place
@@ -121,7 +131,7 @@ def handle_events(
     return game_running, direction
 
 
-def generate_and_get_apple_position(
+def spawn_and_get_apple_position(
     snake_body: list[tuple[int, int]],
 ) -> tuple[int, int]:
     while True:
@@ -131,6 +141,10 @@ def generate_and_get_apple_position(
         )
         if position not in snake_body:
             return position
+
+
+def check_apple_eaten(next_head: tuple[int, int], apple_pos: tuple[int, int]) -> bool:
+    return next_head == apple_pos
 
 
 def main():
@@ -149,13 +163,17 @@ def main():
     directions = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
     direction = directions["RIGHT"]  # default direction
     # apple
-    apple_pos = generate_and_get_apple_position(snake_body)
+    apple_pos = spawn_and_get_apple_position(snake_body)
     # main loop
     while game_running:
         # event handle (handle events like key press)
         game_running, direction = handle_events(game_running, direction, directions)
-        move_snake(snake_body, direction)
-
+        # next_head_pos for checking whether the apple is eaten
+        next_head = get_next_head_pos(snake_body, direction)
+        apple_eaten = check_apple_eaten(next_head, apple_pos)
+        if apple_eaten:
+            apple_pos = spawn_and_get_apple_position(snake_body)
+        move_snake(snake_body, next_head, apple_eaten)
         # draw
         screen.fill(BACKGROUND_COLOUR)
         draw_map(screen)
@@ -164,7 +182,7 @@ def main():
         draw_ui(screen, font)
         pygame.display.flip()  # draw all
 
-        clock.tick(20)  # FPS
+        clock.tick(8)  # FPS
     pygame.quit()
 
 
