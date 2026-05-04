@@ -33,6 +33,32 @@ SCREEN_WIDTH = LEFT_MARGIN + MAP_WIDTH + UI_GAP + UI_WIDTH + RIGHT_MARGIN
 SCREEN_HEIGHT = TOP_MARGIN + MAP_HEIGHT + BOTTOM_MARGIN
 
 
+def move_snake(snake_body: list[tuple[int, int]], direction: tuple[int, int]) -> None:
+    head_x, head_y = snake_body[0]
+    move_x, move_y = direction
+
+    new_head = (head_x + move_x, head_y + move_y)
+    # check whether quantum transit is triggered
+    new_head = quantum_transit(new_head)
+    snake_body.insert(0, new_head)  # insert new head into snake_body[0]
+    snake_body.pop()  # pop the tail
+
+
+# transit the snake from one place to another place
+def quantum_transit(position: tuple[int, int]) -> tuple[int, int]:
+    x, y = position
+
+    if x < 0:
+        x = GRID_WIDTH - 1
+    elif x >= GRID_WIDTH:
+        x = 0
+    if y < 0:
+        y = GRID_HEIGHT - 1
+    elif y >= GRID_HEIGHT:
+        y = 0
+    return (x, y)
+
+
 def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
     for segment in snake_body:
         x, y = segment
@@ -43,18 +69,10 @@ def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
         pygame.draw.rect(screen, SNAKE_COLOUR, rect)
 
 
-def move_snake(snake_body: list[tuple[int, int]], direction: tuple[int, int]) -> None:
-    head_x, head_y = snake_body[0]
-    move_x, move_y = direction
-
-    new_head = (head_x + move_x, head_y + move_y)
-    snake_body.insert(0, new_head)  # insert new head into snake_body[0]
-    snake_body.pop()  # pop the tail
-
-
 def draw_map(screen) -> None:
     map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)
     pygame.draw.rect(screen, MAP_COLOUR, map_rect)
+
 
 # for test not completed
 def draw_ui(screen, font) -> None:
@@ -66,6 +84,28 @@ def draw_ui(screen, font) -> None:
 
     control_text = font.render("Arrow Keys: Move", True, TEXT_COLOUR)
     screen.blit(control_text, (UI_X + 20, UI_Y + 70))
+
+
+def handle_events(
+    game_running: bool,
+    direction: tuple[int, int],
+    directions: dict[str, tuple[int, int]],
+) -> tuple[bool, tuple[int, int]]:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_running = False
+        if event.type == pygame.KEYDOWN:
+            # Change direction by arrow keys. No 180-degree turn.
+            if event.key == pygame.K_UP and direction != directions["DOWN"]:
+                direction = directions["UP"]
+            elif event.key == pygame.K_DOWN and direction != directions["UP"]:
+                direction = directions["DOWN"]
+            elif event.key == pygame.K_LEFT and direction != directions["RIGHT"]:
+                direction = directions["LEFT"]
+            elif event.key == pygame.K_RIGHT and direction != directions["LEFT"]:
+                direction = directions["RIGHT"]
+
+    return game_running, direction
 
 
 def main():
@@ -86,29 +126,18 @@ def main():
 
     # main loop
     while game_running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_running = False
-            if event.type == pygame.KEYDOWN:
-                # change direction by up down left and right key (NO 180-DEGREE TURN)
-                if event.key == pygame.K_UP and direction != directions["DOWN"]:
-                    direction = directions["UP"]
-                elif event.key == pygame.K_DOWN and direction != directions["UP"]:
-                    direction = directions["DOWN"]
-                elif event.key == pygame.K_LEFT and direction != directions["RIGHT"]:
-                    direction = directions["LEFT"]
-                elif event.key == pygame.K_RIGHT and direction != directions["LEFT"]:
-                    direction = directions["RIGHT"]
+        # event handle (handle events like key press)
+        game_running, direction = handle_events(game_running, direction, directions)
         move_snake(snake_body, direction)
-        screen.fill(BACKGROUND_COLOUR)
 
-        #draw
+        # draw
+        screen.fill(BACKGROUND_COLOUR)
         draw_map(screen)
         draw_snake(screen, snake_body)
         draw_ui(screen, font)
         pygame.display.flip()  # draw all
 
-        clock.tick(8)  # FPS = 5
+        clock.tick(20)  # FPS
     pygame.quit()
 
 
