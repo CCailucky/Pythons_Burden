@@ -101,7 +101,7 @@ def draw_apple(screen, apple_pos: tuple[int, int]) -> None:
 def draw_ui(screen, font, lives: int, game_over: bool) -> None:
     ui_rect = pygame.Rect(UI_X, UI_Y, UI_WIDTH, UI_HEIGHT)
     pygame.draw.rect(screen, UI_COLOUR, ui_rect)
-    
+
     title_text = font.render("Python's Burden", True, TEXT_COLOUR)
     screen.blit(title_text, (UI_X + 20, UI_Y + 20))
 
@@ -120,11 +120,19 @@ def handle_events(
     game_running: bool,
     direction: tuple[int, int],
     directions: dict[str, tuple[int, int]],
-) -> tuple[bool, tuple[int, int]]:
+    game_over: bool,
+) -> tuple[bool, tuple[int, int], bool]:
+    restart_request = False
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_running = False
         if event.type == pygame.KEYDOWN:
+            # game is over then press r to restart the game
+            if game_over and event.key == pygame.K_r:
+                restart_request = True
+
+        if not game_over and event.type == pygame.KEYDOWN:
             # Change direction by arrow keys. No 180-degree turn.
             if event.key == pygame.K_UP and direction != directions["DOWN"]:
                 direction = directions["UP"]
@@ -135,7 +143,7 @@ def handle_events(
             elif event.key == pygame.K_RIGHT and direction != directions["LEFT"]:
                 direction = directions["RIGHT"]
 
-    return game_running, direction
+    return game_running, direction, restart_request
 
 
 def spawn_and_get_apple_position(
@@ -173,6 +181,17 @@ def reset_snake(
     return snake_body, direction
 
 
+def reset_game(
+    directions: dict[str, tuple[int, int]],
+) -> tuple[list[tuple[int, int]], tuple[int, int], tuple[int, int], int, bool]:
+    snake_body, direction = reset_snake(directions)
+    apple_pos = spawn_and_get_apple_position(snake_body)
+    lives = 3
+    game_over = False
+
+    return snake_body, direction, apple_pos, lives, game_over
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -182,6 +201,7 @@ def main():
     # ---arguments--- #
     game_running = True
     game_over = False
+    restart_request = False
     # font
     font = pygame.font.Font(None, 28)
     # snake information
@@ -198,8 +218,11 @@ def main():
     while game_running:
 
         # event handle (handle events like key press)
-        game_running, direction = handle_events(game_running, direction, directions)
-
+        game_running, direction, restart_request = handle_events(
+            game_running, direction, directions, game_over
+        )
+        if restart_request:
+            snake_body, direction, apple_pos, lives, game_over = reset_game(directions)
         if not game_over:
             # next_head_pos for checking whether the apple is eaten
             next_head = get_next_head_pos(snake_body, direction)
