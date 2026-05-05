@@ -12,8 +12,10 @@ step 6: basic layout and size of screen
 step 7: snake quantum transit
 step 8: spawn an apple
 step 9: apple be eaten and snake grows 
-
-
+step 10: check game over and simple UI optimization
+step 11: reset the game function
+step 12: divide the main into different parts
+step 13: letter apple and simple UI
 
 
 
