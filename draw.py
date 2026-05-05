@@ -55,6 +55,7 @@ def draw_ui(
     font,
     lives: int,
     game_over: bool,
+    game_win: bool,
     collected_letters: str,
 ) -> None:
     ui_rect = pygame.Rect(UI_X, UI_Y, UI_WIDTH, UI_HEIGHT)
@@ -87,3 +88,9 @@ def draw_ui(
 
         restart_text = font.render("Press R to restart", True, TEXT_COLOUR)
         screen.blit(restart_text, (UI_X + 20, UI_Y + 220))
+    if game_win:
+        victory_text = font.render("Sequence Complete! You Win!", True, TEXT_COLOUR)
+        screen.blit(victory_text, (UI_X + 20, UI_Y + 340))
+
+        restart_text = font.render("Press R to restart", True, TEXT_COLOUR)
+        screen.blit(restart_text, (UI_X + 20, UI_Y + 390))

@@ -32,3 +32,6 @@ def handle_apple_eaten(
         apple_letter = "?"
     apple_pos = spawn_and_get_apple_position(snake_body)
     return apple_pos, apple_letter, collected_letters
+
+def check_target_completed(collected_letters: str) -> bool:
+    return collected_letters == TARGET_SEQUENCE

@@ -12,6 +12,7 @@ from apple import (
     spawn_and_get_apple_position,
     check_apple_eaten,
     handle_apple_eaten,
+    check_target_completed,
 )
 from draw import (
     draw_map,
@@ -34,7 +35,7 @@ def reset_game(
     collected_letters = ""
     lives = 3
     game_over = False
-
+    game_win = False
     return (
         snake_body,
         direction,
@@ -43,6 +44,7 @@ def reset_game(
         collected_letters,
         lives,
         game_over,
+        game_win
     )
 
 
@@ -55,6 +57,7 @@ def main():
     # ---arguments--- #
     game_running = True
     game_over = False
+    game_win = False
     restart_request = False
     # font
     font = pygame.font.Font(None, 28)
@@ -76,7 +79,7 @@ def main():
 
         # event handle (handle events like key press)
         game_running, direction, restart_request = handle_events(
-            game_running, direction, directions, game_over
+            game_running, direction, directions, game_over or game_win
         )
         if restart_request:
             (
@@ -87,9 +90,10 @@ def main():
                 collected_letters,
                 lives,
                 game_over,
+                game_win
             ) = reset_game(directions)
 
-        if not game_over:
+        if not game_over and not game_win:
             # next_head_pos for checking whether the apple is eaten
             next_head = get_next_head_pos(snake_body, direction)
             apple_eaten = check_apple_eaten(next_head, apple_pos)
@@ -103,19 +107,21 @@ def main():
                     snake_body, direction = reset_snake(directions)
                     apple_pos = spawn_and_get_apple_position(snake_body)
             else:
-                #move snake include whether the snake should grow code function
+                # move snake include whether the snake should grow code function
                 move_snake(snake_body, next_head, apple_eaten)
                 if apple_eaten:
                     apple_pos, apple_letter, collected_letters = handle_apple_eaten(
                         snake_body, apple_letter, collected_letters
                     )
+                    if check_target_completed(collected_letters):
+                        game_win = True
 
         # draw
         screen.fill(BACKGROUND_COLOUR)
         draw_map(screen)
         draw_snake(screen, snake_body)
         draw_apple(screen, font, apple_pos, apple_letter)
-        draw_ui(screen, font, lives, game_over, collected_letters)
+        draw_ui(screen, font, lives, game_over, game_win, collected_letters)
         pygame.display.flip()  # draw all
 
         clock.tick(8)  # FPS
