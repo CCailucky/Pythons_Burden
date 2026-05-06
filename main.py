@@ -8,14 +8,12 @@ from apple import (
     handle_apple_eaten,
     check_target_completed,
 )
-from draw import (
-    draw_map,
-    draw_ui,
-)
+from draw import draw_ui
+from game_map import GameMap
 from events import handle_events
 
 
-# reset game: snake_body, direction, apple_pos, apple_letter, collected_letters, lives, game_over
+# reset game
 def reset_game(
     directions: dict[str, tuple[int, int]],
 ) -> tuple[Snake, Apple, list[str], bool, bool]:
@@ -39,6 +37,8 @@ def main():
     game_over = False
     game_win = False
     restart_request = False
+    # game map
+    game_map = GameMap()
     # font
     font = pygame.font.Font(None, 28)
     # snake information
@@ -95,7 +95,7 @@ def main():
 
         # draw
         screen.fill(BACKGROUND_COLOUR)
-        draw_map(screen)
+        game_map.draw(screen)
         player_snake.draw(screen)
         apple.draw(screen, font)
         draw_ui(

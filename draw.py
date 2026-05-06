@@ -19,11 +19,6 @@ from settings import (
 )
 
 
-def draw_map(screen) -> None:
-    map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)
-    pygame.draw.rect(screen, MAP_COLOUR, map_rect)
-
-
 
 # for test not completed
 def draw_ui(
