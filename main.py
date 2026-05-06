@@ -68,14 +68,23 @@ def main():
             # next_head_pos for checking whether the apple is eaten
             next_head = player_snake.get_next_head_pos()
             apple_eaten = apple.check_apple_eaten(next_head)
-
-            if player_snake.check_self_collision(next_head, apple_eaten):
+            # collide with the wall
+            if not game_map.is_walkable(next_head):
                 player_snake.lose_life()
                 if player_snake.is_dead():
                     game_over = True
                 else:
                     player_snake.revive()
                     apple = Apple(player_snake.body, game_map, apple.letter)
+            # self collision
+            elif player_snake.check_self_collision(next_head, apple_eaten):
+                player_snake.lose_life()
+                if player_snake.is_dead():
+                    game_over = True
+                else:
+                    player_snake.revive()
+                    apple = Apple(player_snake.body, game_map, apple.letter)
+            # normal move
             else:
                 # include move and whether the snake should grow code function
                 player_snake.move(next_head, apple_eaten)

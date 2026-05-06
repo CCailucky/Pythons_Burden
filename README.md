@@ -17,7 +17,8 @@ step 11: reset the game function
 step 12: divide the main into different parts
 step 13: letter apple and simple UI
 step 14: game win 
-
+step 15: encapsulate apple,snake,map,UI into class.(this step is easy to cause bugs)
+step 16: add walls
 
 
 
