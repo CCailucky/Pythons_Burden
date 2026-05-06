@@ -21,7 +21,7 @@ EXIT = "exit"
 class GameMap:
     def __init__(self):
         self.grid = self.create_empty_grid()
-        self.create_test_walls()
+        self.create_walls()
     def create_empty_grid(self) -> list[list[str]]:
         grid = []
         for y in range(GRID_HEIGHT):
@@ -32,9 +32,22 @@ class GameMap:
         return grid
 
 
-    def create_test_walls(self) -> None:
-        for x in range(10, 20):
-            self.set_grid((x, x), WALL)
+    def create_walls(self) -> None:
+        wall_positions = [
+            (10, 10),
+            (11, 10),
+            (12, 10),
+            (13, 10),
+            (14, 10),
+            # C
+            (5, 5), (6, 5), (7, 5),
+            (5, 6),
+            (5, 7),
+            (5, 8), (6, 8), (7, 8),
+        ]
+
+        for pos in wall_positions:
+            self.set_grid(pos, WALL)
 
     def draw(self, screen) -> None:
         map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)

@@ -49,3 +49,5 @@ DIRECTIONS = {
     "LEFT": (-1, 0),
     "RIGHT": (1, 0),
 }
+# apple 
+MAX_APPLES = 5

@@ -19,7 +19,7 @@ step 13: letter apple and simple UI
 step 14: game win 
 step 15: encapsulate apple,snake,map,UI into class.(this step is easy to cause bugs)
 step 16: add walls
-
+step 17: add multiple apples
 
 
 
