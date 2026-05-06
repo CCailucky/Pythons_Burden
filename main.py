@@ -76,7 +76,7 @@ def main():
             if player_snake.check_self_collision(next_head, apple_eaten):
                 player_snake.lose_life()
 
-                if player_snake.lives <= 0:
+                if player_snake.is_dead():
                     game_over = True
                 else:
                     player_snake.revive()

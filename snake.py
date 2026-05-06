@@ -71,7 +71,8 @@ class Snake:
 
     def lose_life(self) -> None:
         self.lives -= 1
-
+    def is_dead(self) -> bool:
+        return self.lives <= 0
     # just revive, no lives reset
     def revive(self) -> None:
         self.body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]

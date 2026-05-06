@@ -24,30 +24,6 @@ def draw_map(screen) -> None:
     pygame.draw.rect(screen, MAP_COLOUR, map_rect)
 
 
-# def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
-#     for segment in snake_body:
-#         x, y = segment
-#         # start from (MAP_X, MAP_Y)
-#         rect = pygame.Rect(
-#             MAP_X + x * GRID_SIZE, MAP_Y + y * GRID_SIZE, GRID_SIZE, GRID_SIZE
-#         )
-#         pygame.draw.rect(screen, SNAKE_COLOUR, rect)
-
-
-# similar to draw a snake
-# def draw_apple(screen, font, apple_pos: tuple[int, int], apple_letter: str) -> None:
-#     x, y = apple_pos
-
-#     rect = pygame.Rect(
-#         MAP_X + x * GRID_SIZE, MAP_Y + y * GRID_SIZE, GRID_SIZE, GRID_SIZE
-#     )
-
-#     pygame.draw.rect(screen, APPLE_COLOUR, rect)
-#     # draw letter
-#     letter_text = font.render(apple_letter, True, TEXT_COLOUR)
-#     letter_rect = letter_text.get_rect(center=rect.center)
-#     screen.blit(letter_text, letter_rect)
-
 
 # for test not completed
 def draw_ui(
