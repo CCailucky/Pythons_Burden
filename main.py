@@ -2,12 +2,7 @@ import pygame
 
 
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOUR, TARGET_SEQUENCE
-from snake import (
-    move_snake,
-    get_next_head_pos,
-    check_self_collision,
-    reset_snake,
-)
+from snake import Snake
 from apple import (
     Apple,
     handle_apple_eaten,
@@ -15,7 +10,6 @@ from apple import (
 )
 from draw import (
     draw_map,
-    draw_snake,
     draw_ui,
 )
 from events import handle_events
@@ -24,23 +18,14 @@ from events import handle_events
 # reset game: snake_body, direction, apple_pos, apple_letter, collected_letters, lives, game_over
 def reset_game(
     directions: dict[str, tuple[int, int]],
-) -> tuple[list[tuple[int, int]], tuple[int, int], Apple, list[str], int, bool, bool]:
-    snake_body, direction = reset_snake(directions)
-    apple = Apple(snake_body, TARGET_SEQUENCE[0])
-    collected_letters = []
-    lives = 3
+) -> tuple[Snake, Apple, list[str], bool, bool]:
+    player_snake = Snake(directions)
+    apple = Apple(player_snake.body, TARGET_SEQUENCE[0])
+    collected_letters: list[str] = []
     game_over = False
     game_win = False
 
-    return (
-        snake_body,
-        direction,
-        apple,
-        collected_letters,
-        lives,
-        game_over,
-        game_win,
-    )
+    return player_snake, apple, collected_letters, game_over, game_win
 
 
 def main():
@@ -57,54 +42,53 @@ def main():
     # font
     font = pygame.font.Font(None, 28)
     # snake information
-    snake_body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
-    # snake direction
     directions = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
-    direction = directions["RIGHT"]  # default direction
+    player_snake = Snake(directions)
     # apple
-    apple = Apple(snake_body, TARGET_SEQUENCE[0])
+    apple = Apple(player_snake.body, TARGET_SEQUENCE[0])
     # collected letters
     collected_letters = []
-    # life
-    lives = 3
 
     # main loop
     while game_running:
 
         # event handle (handle events like key press)
-        game_running, direction, restart_request = handle_events(
-            game_running, direction, directions, game_over or game_win
+        game_running, player_snake.direction, restart_request = handle_events(
+            game_running,
+            player_snake.direction,
+            directions,
+            game_over or game_win,
         )
         if restart_request:
             (
-                snake_body,
-                direction,
+                player_snake,
                 apple,
                 collected_letters,
-                lives,
                 game_over,
                 game_win,
             ) = reset_game(directions)
 
         if not game_over and not game_win:
             # next_head_pos for checking whether the apple is eaten
-            next_head = get_next_head_pos(snake_body, direction)
+            next_head = player_snake.get_next_head_pos()
             apple_eaten = apple.check_apple_eaten(next_head)
 
-            # is collided
-            if check_self_collision(next_head, snake_body, apple_eaten):
-                lives -= 1
-                if lives <= 0:
+            if player_snake.check_self_collision(next_head, apple_eaten):
+                player_snake.lose_life()
+
+                if player_snake.lives <= 0:
                     game_over = True
                 else:
-                    snake_body, direction = reset_snake(directions)
-                    apple = Apple(snake_body, apple.letter)
+                    player_snake.revive()
+                    apple = Apple(player_snake.body, apple.letter)
             else:
-                # move snake include whether the snake should grow code function
-                move_snake(snake_body, next_head, apple_eaten)
+                # include move and whether the snake should grow code function
+                player_snake.move(next_head, apple_eaten)
                 if apple_eaten:
                     apple, collected_letters = handle_apple_eaten(
-                        snake_body, apple, collected_letters
+                        player_snake.body,
+                        apple,
+                        collected_letters,
                     )
                     if check_target_completed(collected_letters):
                         game_win = True
@@ -112,9 +96,11 @@ def main():
         # draw
         screen.fill(BACKGROUND_COLOUR)
         draw_map(screen)
-        draw_snake(screen, snake_body)
+        player_snake.draw(screen)
         apple.draw(screen, font)
-        draw_ui(screen, font, lives, game_over, game_win, collected_letters)
+        draw_ui(
+            screen, font, player_snake.lives, game_over, game_win, collected_letters
+        )
         pygame.display.flip()  # draw all
 
         clock.tick(8)  # FPS

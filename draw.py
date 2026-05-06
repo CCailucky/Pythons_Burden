@@ -24,14 +24,14 @@ def draw_map(screen) -> None:
     pygame.draw.rect(screen, MAP_COLOUR, map_rect)
 
 
-def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
-    for segment in snake_body:
-        x, y = segment
-        # start from (MAP_X, MAP_Y)
-        rect = pygame.Rect(
-            MAP_X + x * GRID_SIZE, MAP_Y + y * GRID_SIZE, GRID_SIZE, GRID_SIZE
-        )
-        pygame.draw.rect(screen, SNAKE_COLOUR, rect)
+# def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
+#     for segment in snake_body:
+#         x, y = segment
+#         # start from (MAP_X, MAP_Y)
+#         rect = pygame.Rect(
+#             MAP_X + x * GRID_SIZE, MAP_Y + y * GRID_SIZE, GRID_SIZE, GRID_SIZE
+#         )
+#         pygame.draw.rect(screen, SNAKE_COLOUR, rect)
 
 
 # similar to draw a snake
