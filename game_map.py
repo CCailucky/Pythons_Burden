@@ -22,6 +22,7 @@ class GameMap:
     def __init__(self):
         self.grid = self.create_empty_grid()
         self.create_walls()
+
     def create_empty_grid(self) -> list[list[str]]:
         grid = []
         for y in range(GRID_HEIGHT):
@@ -31,7 +32,6 @@ class GameMap:
             grid.append(row)
         return grid
 
-
     def create_walls(self) -> None:
         wall_positions = [
             (10, 10),
@@ -40,10 +40,14 @@ class GameMap:
             (13, 10),
             (14, 10),
             # C
-            (5, 5), (6, 5), (7, 5),
+            (5, 5),
+            (6, 5),
+            (7, 5),
             (5, 6),
             (5, 7),
-            (5, 8), (6, 8), (7, 8),
+            (5, 8),
+            (6, 8),
+            (7, 8),
         ]
 
         for pos in wall_positions:
@@ -84,3 +88,10 @@ class GameMap:
         cell_type = self.get_grid(pos)
 
         return cell_type in [EMPTY, PORTAL, EXIT]
+
+    def is_available_for_spawn(
+        self,
+        pos: tuple[int, int],
+        occupied_positions: set[tuple[int, int]],
+    ) -> bool:
+        return self.is_walkable(pos) and pos not in occupied_positions
