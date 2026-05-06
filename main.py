@@ -8,7 +8,7 @@ from apple import (
     handle_apple_eaten,
     check_target_completed,
 )
-from draw import draw_ui
+from ui import UI
 from game_map import GameMap
 from events import handle_events
 
@@ -39,7 +39,8 @@ def main():
     game_map = GameMap()
     # font
     font = pygame.font.Font(None, 28)
-    # snake information
+    ui = UI(font)
+    # snake
     player_snake = Snake()
     # apple
     apple = Apple(player_snake.body, TARGET_SEQUENCE[0])
@@ -70,7 +71,6 @@ def main():
 
             if player_snake.check_self_collision(next_head, apple_eaten):
                 player_snake.lose_life()
-
                 if player_snake.is_dead():
                     game_over = True
                 else:
@@ -93,8 +93,12 @@ def main():
         game_map.draw(screen)
         player_snake.draw(screen)
         apple.draw(screen, font)
-        draw_ui(
-            screen, font, player_snake.lives, game_over, game_win, collected_letters
+        ui.draw(
+            screen,
+            player_snake.lives,
+            game_over,
+            game_win,
+            collected_letters,
         )
         pygame.display.flip()  # draw all
 

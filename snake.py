@@ -8,14 +8,16 @@ from settings import (
     MAP_Y,
     SNAKE_COLOUR,
     DIRECTIONS,
+    INITIAL_SNAKE_BODY,
+    INITIAL_LIVES,
 )
 
 
 class Snake:
     def __init__(self):
-        self.body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
         self.direction = DIRECTIONS["RIGHT"]
-        self.lives = 3
+        self.body = INITIAL_SNAKE_BODY.copy()
+        self.lives = INITIAL_LIVES
 
     def draw(self, screen) -> None:
         for segment in self.body:
