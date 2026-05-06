@@ -1,9 +1,8 @@
 import pygame
-
+from settings import DIRECTIONS
 def handle_events(
     game_running: bool,
     direction: tuple[int, int],
-    directions: dict[str, tuple[int, int]],
     game_over: bool,
 ) -> tuple[bool, tuple[int, int], bool]:
     restart_request = False
@@ -18,13 +17,13 @@ def handle_events(
 
         if not game_over and event.type == pygame.KEYDOWN:
             # Change direction by arrow keys. No 180-degree turn.
-            if event.key == pygame.K_UP and direction != directions["DOWN"]:
-                direction = directions["UP"]
-            elif event.key == pygame.K_DOWN and direction != directions["UP"]:
-                direction = directions["DOWN"]
-            elif event.key == pygame.K_LEFT and direction != directions["RIGHT"]:
-                direction = directions["LEFT"]
-            elif event.key == pygame.K_RIGHT and direction != directions["LEFT"]:
-                direction = directions["RIGHT"]
+            if event.key == pygame.K_UP and direction != DIRECTIONS["DOWN"]:
+                direction = DIRECTIONS["UP"]
+            elif event.key == pygame.K_DOWN and direction != DIRECTIONS["UP"]:
+                direction = DIRECTIONS["DOWN"]
+            elif event.key == pygame.K_LEFT and direction != DIRECTIONS["RIGHT"]:
+                direction = DIRECTIONS["LEFT"]
+            elif event.key == pygame.K_RIGHT and direction != DIRECTIONS["LEFT"]:
+                direction = DIRECTIONS["RIGHT"]
 
     return game_running, direction, restart_request

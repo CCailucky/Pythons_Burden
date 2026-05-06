@@ -30,6 +30,19 @@ UI_Y = MAP_Y
 # screen
 SCREEN_WIDTH = LEFT_MARGIN + MAP_WIDTH + UI_GAP + UI_WIDTH + RIGHT_MARGIN
 SCREEN_HEIGHT = TOP_MARGIN + MAP_HEIGHT + BOTTOM_MARGIN
+
+
+
+
+# participation logic code
 # target
+
 # TARGET_SEQUENCE = "ILOVEPYTHONCOMP9001"
 TARGET_SEQUENCE = "IL"
+# snake move
+DIRECTIONS = {
+    "UP": (0, -1),
+    "DOWN": (0, 1),
+    "LEFT": (-1, 0),
+    "RIGHT": (1, 0),
+}

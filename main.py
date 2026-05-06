@@ -14,10 +14,8 @@ from events import handle_events
 
 
 # reset game
-def reset_game(
-    directions: dict[str, tuple[int, int]],
-) -> tuple[Snake, Apple, list[str], bool, bool]:
-    player_snake = Snake(directions)
+def reset_game() -> tuple[Snake, Apple, list[str], bool, bool]:
+    player_snake = Snake()
     apple = Apple(player_snake.body, TARGET_SEQUENCE[0])
     collected_letters: list[str] = []
     game_over = False
@@ -42,8 +40,7 @@ def main():
     # font
     font = pygame.font.Font(None, 28)
     # snake information
-    directions = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
-    player_snake = Snake(directions)
+    player_snake = Snake()
     # apple
     apple = Apple(player_snake.body, TARGET_SEQUENCE[0])
     # collected letters
@@ -56,7 +53,6 @@ def main():
         game_running, player_snake.direction, restart_request = handle_events(
             game_running,
             player_snake.direction,
-            directions,
             game_over or game_win,
         )
         if restart_request:
@@ -66,8 +62,7 @@ def main():
                 collected_letters,
                 game_over,
                 game_win,
-            ) = reset_game(directions)
-
+            ) = reset_game()
         if not game_over and not game_win:
             # next_head_pos for checking whether the apple is eaten
             next_head = player_snake.get_next_head_pos()

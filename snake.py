@@ -7,14 +7,14 @@ from settings import (
     MAP_X,
     MAP_Y,
     SNAKE_COLOUR,
+    DIRECTIONS,
 )
 
 
 class Snake:
-    def __init__(self, directions: dict[str, tuple[int, int]]):
-        self.directions = directions
+    def __init__(self):
         self.body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
-        self.direction = directions["RIGHT"]
+        self.direction = DIRECTIONS["RIGHT"]
         self.lives = 3
 
     def draw(self, screen) -> None:
@@ -76,9 +76,9 @@ class Snake:
     # just revive, no lives reset
     def revive(self) -> None:
         self.body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
-        self.direction = self.directions["RIGHT"]
+        self.direction = DIRECTIONS["RIGHT"]
 
     def reset(self) -> None:
         self.body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
-        self.direction = self.directions["RIGHT"]
+        self.direction = DIRECTIONS["RIGHT"]
         self.lives = 3
