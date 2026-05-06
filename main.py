@@ -14,10 +14,10 @@ from events import handle_events
 
 
 # reset game
-def reset_game() -> tuple[Snake, Apple, list[str], bool, bool]:
+def reset_game(game_map) -> tuple[Snake, Apple, list[str], bool, bool]:
     player_snake = Snake()
-    apple = Apple(player_snake.body, TARGET_SEQUENCE[0])
-    collected_letters: list[str] = []
+    apple = Apple(player_snake.body, game_map, TARGET_SEQUENCE[0])
+    collected_letters = []
     game_over = False
     game_win = False
 
@@ -43,7 +43,7 @@ def main():
     # snake
     player_snake = Snake()
     # apple
-    apple = Apple(player_snake.body, TARGET_SEQUENCE[0])
+    apple = Apple(player_snake.body, game_map, TARGET_SEQUENCE[0])
     # collected letters
     collected_letters = []
 
@@ -63,7 +63,7 @@ def main():
                 collected_letters,
                 game_over,
                 game_win,
-            ) = reset_game()
+            ) = reset_game(game_map)
         if not game_over and not game_win:
             # next_head_pos for checking whether the apple is eaten
             next_head = player_snake.get_next_head_pos()
@@ -75,13 +75,14 @@ def main():
                     game_over = True
                 else:
                     player_snake.revive()
-                    apple = Apple(player_snake.body, apple.letter)
+                    apple = Apple(player_snake.body, game_map, apple.letter)
             else:
                 # include move and whether the snake should grow code function
                 player_snake.move(next_head, apple_eaten)
                 if apple_eaten:
                     apple, collected_letters = handle_apple_eaten(
                         player_snake.body,
+                        game_map,
                         apple,
                         collected_letters,
                     )

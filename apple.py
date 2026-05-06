@@ -13,20 +13,26 @@ from settings import (
 
 
 class Apple:
-    def __init__(self, snake_body: list[tuple[int, int]], letter: str):
-        self.pos = self.spawn_and_get_apple_position(snake_body)
+    def __init__(
+        self,
+        snake_body: list[tuple[int, int]],
+        game_map,
+        letter: str,
+    ):
+        self.pos = self.spawn_and_get_apple_position(snake_body, game_map)
         self.letter = letter
 
     def spawn_and_get_apple_position(
-        self, snake_body: list[tuple[int, int]]
+        self,
+        snake_body: list[tuple[int, int]],
+        game_map,
     ) -> tuple[int, int]:
         while True:
             pos = (
                 random.randint(0, GRID_WIDTH - 1),
                 random.randint(0, GRID_HEIGHT - 1),
             )
-
-            if pos not in snake_body:
+            if pos not in snake_body and game_map.is_walkable(pos):
                 return pos
 
     def draw(self, screen, font) -> None:
@@ -51,6 +57,7 @@ class Apple:
 
 def handle_apple_eaten(
     snake_body: list[tuple[int, int]],
+    game_map,
     apple: Apple,
     collected_letters: list[str],
 ) -> tuple[Apple, list[str]]:
@@ -63,7 +70,7 @@ def handle_apple_eaten(
         next_letter = TARGET_SEQUENCE[next_index]
     else:
         next_letter = "?"
-    new_apple = Apple(snake_body, next_letter)
+    new_apple = Apple(snake_body, game_map, next_letter)
 
     return new_apple, collected_letters
 
