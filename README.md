@@ -16,7 +16,7 @@ step 10: check game over and simple UI optimization
 step 11: reset the game function
 step 12: divide the main into different parts
 step 13: letter apple and simple UI
-
+step 14: game win 
 
 
 

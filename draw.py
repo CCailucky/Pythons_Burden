@@ -35,18 +35,18 @@ def draw_snake(screen, snake_body: list[tuple[int, int]]) -> None:
 
 
 # similar to draw a snake
-def draw_apple(screen, font, apple_pos: tuple[int, int], apple_letter: str) -> None:
-    x, y = apple_pos
+# def draw_apple(screen, font, apple_pos: tuple[int, int], apple_letter: str) -> None:
+#     x, y = apple_pos
 
-    rect = pygame.Rect(
-        MAP_X + x * GRID_SIZE, MAP_Y + y * GRID_SIZE, GRID_SIZE, GRID_SIZE
-    )
+#     rect = pygame.Rect(
+#         MAP_X + x * GRID_SIZE, MAP_Y + y * GRID_SIZE, GRID_SIZE, GRID_SIZE
+#     )
 
-    pygame.draw.rect(screen, APPLE_COLOUR, rect)
-    # draw letter
-    letter_text = font.render(apple_letter, True, TEXT_COLOUR)
-    letter_rect = letter_text.get_rect(center=rect.center)
-    screen.blit(letter_text, letter_rect)
+#     pygame.draw.rect(screen, APPLE_COLOUR, rect)
+#     # draw letter
+#     letter_text = font.render(apple_letter, True, TEXT_COLOUR)
+#     letter_rect = letter_text.get_rect(center=rect.center)
+#     screen.blit(letter_text, letter_rect)
 
 
 # for test not completed
@@ -56,7 +56,7 @@ def draw_ui(
     lives: int,
     game_over: bool,
     game_win: bool,
-    collected_letters: str,
+    collected_letters: list[str],
 ) -> None:
     ui_rect = pygame.Rect(UI_X, UI_Y, UI_WIDTH, UI_HEIGHT)
     pygame.draw.rect(screen, UI_COLOUR, ui_rect)
@@ -79,7 +79,7 @@ def draw_ui(
     collected_text = font.render("Collected:", True, TEXT_COLOUR)
     screen.blit(collected_text, (UI_X + 20, UI_Y + 250))
 
-    collected_value = font.render(collected_letters, True, TEXT_COLOUR)
+    collected_value = font.render("".join(collected_letters), True, TEXT_COLOUR)
     screen.blit(collected_value, (UI_X + 20, UI_Y + 280))
 
     if game_over:
