@@ -81,6 +81,12 @@ def main():
                 game_win,
             ) = reset_game(game_map)
         if not game_over and not game_win:
+            # update apples’ status
+            apple_manager.update(
+                player_snake,
+                game_map,
+                collected_letters,
+            )
             # next_head_pos for checking whether the apple is eaten
             next_head = player_snake.get_next_head_pos()
             eaten_apple = apple_manager.get_eaten_apple(next_head)
@@ -114,7 +120,7 @@ def main():
                         game_map,
                         collected_letters,
                     )
-            # normal move
+            # snake move normally
             else:
                 # include move and whether the snake should grow code function
                 player_snake.move(next_head, is_apple_eaten)

@@ -10,6 +10,8 @@ from settings import (
     APPLE_COLOUR,
     TEXT_COLOUR,
     TARGET_SEQUENCE,
+    APPLE_LIFETIME_MS,
+    APPLE_LIFETIME_RANDOM_RANGE_MS,
 )
 
 
@@ -22,6 +24,8 @@ class Apple:
     ):
         self.pos = self.spawn_and_get_apple_position(game_map, occupied_positions)
         self.letter = letter
+        self.spawn_time = pygame.time.get_ticks()
+        self.lifetime = self.get_random_lifetime()
 
     # single apple
     def spawn_and_get_apple_position(
@@ -56,6 +60,16 @@ class Apple:
     def check_apple_eaten(self, next_head: tuple[int, int]) -> bool:
         return next_head == self.pos
 
+    def get_random_lifetime(self) -> int:
+        return random.randint(
+            APPLE_LIFETIME_MS - APPLE_LIFETIME_RANDOM_RANGE_MS,
+            APPLE_LIFETIME_MS + APPLE_LIFETIME_RANDOM_RANGE_MS,
+        )
+
+    def is_expired(self) -> bool:
+        current_time = pygame.time.get_ticks()
+        return current_time - self.spawn_time >= self.lifetime
+
 
 class AppleManager:
     def __init__(
@@ -74,6 +88,22 @@ class AppleManager:
         if next_index < len(TARGET_SEQUENCE):
             return TARGET_SEQUENCE[next_index]
         return "?"
+
+    def spawn_one_apple(
+        self,
+        player_snake,
+        game_map,
+        letter: str,
+    ) -> None:
+        occupied_positions = self.get_occupied_positions(player_snake)
+
+        new_apple = Apple(
+            game_map,
+            letter,
+            occupied_positions,
+        )
+
+        self.apples.append(new_apple)
 
     def spawn_apples(
         self,
@@ -104,6 +134,39 @@ class AppleManager:
             self.apples.append(random_apple)
             occupied_positions.append(random_apple.pos)
 
+    def has_correct_letter(self, letter: str) -> bool:
+        for apple in self.apples:
+            if apple.letter == letter:
+                return True
+
+        return False
+
+    def remove_expired_apples(self) -> None:
+        valid_apples = []
+
+        for apple in self.apples:
+            if not apple.is_expired():
+                valid_apples.append(apple)
+
+        self.apples = valid_apples
+
+    def refill_apples(
+        self,
+        player_snake,
+        game_map,
+        collected_letters: list[str],
+    ) -> None:
+        required_letter = self.get_next_required_letter(collected_letters)
+        # refill correct letter apple
+        if len(self.apples) < self.max_apples and not self.has_correct_letter(
+            required_letter
+        ):
+            self.spawn_one_apple(player_snake, game_map, required_letter)
+        # refill random letter apple
+        while len(self.apples) < self.max_apples:
+            random_letter = get_random_apple_letter()
+            self.spawn_one_apple(player_snake, game_map, random_letter)
+
     def get_eaten_apple(self, next_head: tuple[int, int]) -> Apple | None:
         for apple in self.apples:
             if apple.check_apple_eaten(next_head):
@@ -117,16 +180,35 @@ class AppleManager:
         game_map,
         collected_letters: list[str],
     ) -> list[str]:
-        collected_letters.append(eaten_apple.letter)
+        if eaten_apple in self.apples:
+            self.apples.remove(eaten_apple)
 
-        self.spawn_apples(
+        collected_letters.append(eaten_apple.letter)
+        self.refill_apples(
             player_snake,
             game_map,
             collected_letters,
         )
-
         return collected_letters
 
+    # currently occupied positions
+    def get_occupied_positions(self, player_snake) -> list[tuple[int, int]]:
+        occupied_positions = player_snake.body.copy()
+        for apple in self.apples:
+            occupied_positions.append(apple.pos)
+        return occupied_positions
+
+    # update apples' status
+    def update(
+        self,
+        player_snake,
+        game_map,
+        collected_letters: list[str],
+    ) -> None:
+        self.remove_expired_apples()
+        self.refill_apples(player_snake, game_map, collected_letters)
+
+    # draw all apples
     def draw(self, screen, font) -> None:
         for apple in self.apples:
             apple.draw(screen, font)
@@ -138,6 +220,7 @@ def check_target_completed(collected_letters: list[str]) -> bool:
 
 def get_random_apple_letter() -> str:
     return random.choice(string.ascii_uppercase)  # ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
 
 # # multiple apples
 # def spawn_and_get_apples(

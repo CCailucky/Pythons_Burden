@@ -34,12 +34,11 @@ SCREEN_HEIGHT = TOP_MARGIN + MAP_HEIGHT + BOTTOM_MARGIN
 
 
 
-
-# participation logic code
+# participating logic code
 # target
 
 # TARGET_SEQUENCE = "ILOVEPYTHONCOMP9001"
-TARGET_SEQUENCE = "IL"
+TARGET_SEQUENCE = "ILOVEPYTHONCOMP9001"
 # snake
 INITIAL_SNAKE_BODY = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
 INITIAL_LIVES = 3
@@ -50,4 +49,6 @@ DIRECTIONS = {
     "RIGHT": (1, 0),
 }
 # apple 
-MAX_APPLES = 5
+MAX_APPLES = 20
+APPLE_LIFETIME_MS = 8000 # apple lifetime 
+APPLE_LIFETIME_RANDOM_RANGE_MS = 4000 # random range
