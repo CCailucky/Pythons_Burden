@@ -14,10 +14,14 @@ from settings import (
 
 
 class Snake:
-    def __init__(self):
+    def __init__(self, occupied_positions: list[tuple[int, int]]):
         self.direction = DIRECTIONS["RIGHT"]
         self.body = INITIAL_SNAKE_BODY.copy()
         self.lives = INITIAL_LIVES
+        self.occupied_positions = occupied_positions
+        for segment in self.body:
+            if segment not in self.occupied_positions:
+                self.occupied_positions.append(segment)
 
     def draw(self, screen) -> None:
         for segment in self.body:
@@ -34,8 +38,13 @@ class Snake:
     def move(self, next_head: tuple[int, int], should_grow: bool) -> None:
         self.body.insert(0, next_head)  # insert new head into snake_body[0]
 
+        # always add the new head position, one pos belongs to item, one pos belongs to the snake
+        self.occupied_positions.append(next_head)
+
         if not should_grow:
-            self.body.pop()  # pop the tail
+            removed_tail = self.body.pop()
+            if removed_tail in self.occupied_positions:
+                self.occupied_positions.remove(removed_tail)
 
     def get_next_head_pos(self) -> tuple[int, int]:
         head_x, head_y = self.body[0]
@@ -73,18 +82,39 @@ class Snake:
 
     def lose_life(self) -> None:
         self.lives -= 1
+
     def is_dead(self) -> bool:
         return self.lives <= 0
+
     # just revive, no lives reset
     def revive(self) -> None:
-        self.body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
+        for segment in self.body:
+            if segment in self.occupied_positions:
+                self.occupied_positions.remove(segment)
+
+        self.body = INITIAL_SNAKE_BODY.copy()
         self.direction = DIRECTIONS["RIGHT"]
 
+        for segment in self.body:
+            if segment not in self.occupied_positions:
+                self.occupied_positions.append(segment)
+
     def reset(self) -> None:
-        self.body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
+        for segment in self.body:
+            if segment in self.occupied_positions:
+                self.occupied_positions.remove(segment)
+
+        self.body = INITIAL_SNAKE_BODY.copy()
         self.direction = DIRECTIONS["RIGHT"]
+
+        for segment in self.body:
+            if segment not in self.occupied_positions:
+                self.occupied_positions.append(segment)
         self.lives = 3
+
     def cut_tail(self, cut_count: int) -> None:
         for i in range(cut_count):
             if len(self.body) > 1:
-                self.body.pop()
+                removed_tail = self.body.pop()
+                if removed_tail in self.occupied_positions:
+                    self.occupied_positions.remove(removed_tail)

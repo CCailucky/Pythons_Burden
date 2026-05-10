@@ -71,88 +71,93 @@ class Apple:
         return current_time - self.spawn_time >= self.lifetime
 
 
+#
+#
+#
+#
+#
+#
+
+
 class AppleManager:
     def __init__(
         self,
-        player_snake,
         game_map,
         collected_letters: list[str],
+        occupied_positions: list[tuple[int, int]],
         max_apples: int,
     ):
         self.max_apples = max_apples
         self.apples = []
-        self.spawn_apples(player_snake, game_map, collected_letters)
-
+        self.occupied_positions = occupied_positions
+        self.spawn_apples(game_map, collected_letters)
     def get_next_required_letter(self, collected_letters: list[str]) -> str:
         next_index = len(collected_letters)
         if next_index < len(TARGET_SEQUENCE):
             return TARGET_SEQUENCE[next_index]
         return "?"
-
+# after spawning, occupied_positions must be updated
     def spawn_one_apple(
         self,
-        player_snake,
         game_map,
         letter: str,
     ) -> None:
-        occupied_positions = self.get_occupied_positions(player_snake)
-
         new_apple = Apple(
             game_map,
             letter,
-            occupied_positions,
+            self.occupied_positions,
         )
 
         self.apples.append(new_apple)
+        self.occupied_positions.append(new_apple.pos)
 
+    # used when initialize apple manager OR restart the game
     def spawn_apples(
         self,
-        player_snake,
         game_map,
         collected_letters: list[str],
     ) -> None:
+        # Remove old apple positions from occupied_positions
+        for apple in self.apples:
+            if apple.pos in self.occupied_positions:
+                self.occupied_positions.remove(apple.pos)
+
         self.apples = []
-        # NOT AVAILABLE POSITION FOR SPAWNING
-        occupied_positions = player_snake.body.copy()
+
         correct_letter = self.get_next_required_letter(collected_letters)
         # Make sure there is at least one correct letter apple.
-        correct_apple = Apple(
+        self.spawn_one_apple(
             game_map,
             correct_letter,
-            occupied_positions,
         )
-        self.apples.append(correct_apple)
-        occupied_positions.append(correct_apple.pos)
         # Spawn random letter apples.
         while len(self.apples) < self.max_apples:
             random_letter = get_random_apple_letter()
-            random_apple = Apple(
+            self.spawn_one_apple(
                 game_map,
                 random_letter,
-                occupied_positions,
             )
-            self.apples.append(random_apple)
-            occupied_positions.append(random_apple.pos)
 
-    def has_correct_letter(self, letter: str) -> bool:
+    def has_correct_letter(self, correct_letter: str) -> bool:
         for apple in self.apples:
-            if apple.letter == letter:
+            if apple.letter == correct_letter:
                 return True
-
         return False
 
     def remove_expired_apples(self) -> None:
         valid_apples = []
 
         for apple in self.apples:
-            if not apple.is_expired():
+            if apple.is_expired():
+                if apple.pos in self.occupied_positions:
+                    self.occupied_positions.remove(apple.pos)
+            else:
                 valid_apples.append(apple)
 
         self.apples = valid_apples
 
     def refill_apples(
         self,
-        player_snake,
         game_map,
         collected_letters: list[str],
     ) -> None:
@@ -161,11 +166,27 @@ class AppleManager:
         if len(self.apples) < self.max_apples and not self.has_correct_letter(
             required_letter
         ):
-            self.spawn_one_apple(player_snake, game_map, required_letter)
+            self.spawn_one_apple(
+                game_map,
+                required_letter
+            )
         # refill random letter apple
         while len(self.apples) < self.max_apples:
             random_letter = get_random_apple_letter()
-            self.spawn_one_apple(player_snake, game_map, random_letter)
+
+            self.spawn_one_apple(
+                game_map,
+                random_letter,
+            )
+
+    # update apples' status
+    def update(
+        self,
+        game_map,
+        collected_letters: list[str],
+    ) -> None:
+        self.remove_expired_apples()
+        self.refill_apples(game_map, collected_letters)
 
     def get_eaten_apple(self, next_head: tuple[int, int]) -> Apple | None:
         for apple in self.apples:
@@ -176,37 +197,20 @@ class AppleManager:
     def handle_apple_eaten(
         self,
         eaten_apple: Apple,
-        player_snake,
         game_map,
         collected_letters: list[str],
     ) -> list[str]:
         if eaten_apple in self.apples:
             self.apples.remove(eaten_apple)
-
+        if eaten_apple.pos in self.occupied_positions:
+            self.occupied_positions.remove(eaten_apple.pos)
         collected_letters.append(eaten_apple.letter)
         self.refill_apples(
-            player_snake,
             game_map,
-            collected_letters,
+            collected_letters
         )
+
         return collected_letters
-
-    # currently occupied positions
-    def get_occupied_positions(self, player_snake) -> list[tuple[int, int]]:
-        occupied_positions = player_snake.body.copy()
-        for apple in self.apples:
-            occupied_positions.append(apple.pos)
-        return occupied_positions
-
-    # update apples' status
-    def update(
-        self,
-        player_snake,
-        game_map,
-        collected_letters: list[str],
-    ) -> None:
-        self.remove_expired_apples()
-        self.refill_apples(player_snake, game_map, collected_letters)
 
     # draw all apples
     def draw(self, screen, font) -> None:

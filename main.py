@@ -4,36 +4,49 @@ from settings import (
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
     BACKGROUND_COLOUR,
-    TARGET_SEQUENCE,
     MAX_APPLES,
 )
 from snake import Snake
 from apple import (
-    Apple,
     AppleManager,
     check_target_completed,
 )
 from ui import UI
 from game_map import GameMap
 from events import handle_events
-from item import ItemTailCut
+from item import ItemManager
+
 
 # reset game
-def reset_game(game_map) -> tuple[Snake, AppleManager, list[str], bool, bool]:
-    player_snake = Snake()
-    collected_letters: list[str] = []
-
+def reset_game(game_map):
+    occupied_positions = []
+    player_snake = Snake(occupied_positions)
+    collected_letters = []
     apple_manager = AppleManager(
-        player_snake,
         game_map,
         collected_letters,
+        occupied_positions,
         MAX_APPLES,
+    )
+
+    item_manager = ItemManager(
+        game_map,
+        occupied_positions,
     )
 
     game_over = False
     game_win = False
 
-    return player_snake, apple_manager, collected_letters, game_over, game_win
+    return (
+        player_snake,
+        apple_manager,
+        item_manager,
+        collected_letters,
+        occupied_positions,
+        game_over,
+        game_win,
+    )
+
 
 
 def main():
@@ -41,6 +54,7 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Python's Burden: Escape from COMP9001")
     clock = pygame.time.Clock()
+
     # ---arguments--- #
     game_running = True
     game_over = False
@@ -51,24 +65,19 @@ def main():
     # font
     font = pygame.font.Font(None, 28)
     ui = UI(font)
-    # snake
-    player_snake = Snake()
-    # collected letters
-    collected_letters = []
-    # apple manager(apple)
-    apple_manager = AppleManager(
+    # initialization
+    (
         player_snake,
-        game_map,
+        apple_manager,
+        item_manager,
         collected_letters,
-        MAX_APPLES,
-    )
-    # item
-    occupied_positions = player_snake.body.copy()
+        occupied_positions,
+        game_over,
+        game_win,
+    ) = reset_game(game_map)
 
-    for apple in apple_manager.apples:
-        occupied_positions.append(apple.pos)
 
-    item_tail_cut = ItemTailCut(game_map, occupied_positions)
+
     # main loop
     while game_running:
         # event handle (handle events like key press)
@@ -81,37 +90,31 @@ def main():
             (
                 player_snake,
                 apple_manager,
+                item_manager,
                 collected_letters,
+                occupied_positions,
                 game_over,
                 game_win,
             ) = reset_game(game_map)
 
-            occupied_positions = player_snake.body.copy()
-
-            for apple in apple_manager.apples:
-                occupied_positions.append(apple.pos)
-
-            item_tail_cut = ItemTailCut(game_map, occupied_positions)
-
-
-
-
         if not game_over and not game_win:
-            # update apples’ status
+            # update apples’ status manager
             apple_manager.update(
-                player_snake,
                 game_map,
                 collected_letters,
             )
             # next_head_pos for checking whether the apple is eaten
             next_head = player_snake.get_next_head_pos()
-            is_item_tail_cut_eaten = item_tail_cut.check_item_eaten(next_head)
+            eaten_tail_cut_item = item_manager.get_eaten_tail_cut(next_head)
             eaten_apple = apple_manager.get_eaten_apple(next_head)
             if eaten_apple == None:
                 is_apple_eaten = False
             else:
                 is_apple_eaten = True
-
+            if eaten_tail_cut_item == None:
+                is_tail_cut_eaten = False
+            else:
+                is_tail_cut_eaten = True
             # collide with the wall
             if not game_map.is_walkable(next_head):
                 player_snake.lose_life()
@@ -121,7 +124,6 @@ def main():
                     player_snake.revive()
                     # spawn a new batch of apples
                     apple_manager.spawn_apples(
-                        player_snake,
                         game_map,
                         collected_letters,
                     )
@@ -135,7 +137,6 @@ def main():
                     player_snake.revive()
                     # respawn a new batch of apples
                     apple_manager.spawn_apples(
-                        player_snake,
                         game_map,
                         collected_letters,
                     )
@@ -148,29 +149,27 @@ def main():
                 if is_apple_eaten:
                     collected_letters = apple_manager.handle_apple_eaten(
                         eaten_apple,
-                        player_snake,
                         game_map,
                         collected_letters,
                     )
 
-                if is_item_tail_cut_eaten:
-                    if len(collected_letters) > 0:
-                        collected_letters.pop()
-                        player_snake.cut_tail(1)
-                    occupied_positions = player_snake.body.copy()
-                    for apple in apple_manager.apples:
-                        occupied_positions.append(apple.pos)
-                    item_tail_cut = ItemTailCut(game_map, occupied_positions)
+                if is_tail_cut_eaten:
+                    collected_letters = item_manager.handle_tail_cut_eaten(
+                        eaten_tail_cut_item,
+                        player_snake,
+                        collected_letters,
+                    )
+                    item_manager.spawn_tail_cut(game_map)
 
-                    if check_target_completed(collected_letters):
-                        game_win = True
+                if check_target_completed(collected_letters):
+                    game_win = True
 
         # draw
         screen.fill(BACKGROUND_COLOUR)
         game_map.draw(screen)
         player_snake.draw(screen)
         apple_manager.draw(screen, font)
-        item_tail_cut.draw(screen, font)
+        item_manager.draw(screen, font)
         ui.draw(
             screen,
             player_snake.lives,

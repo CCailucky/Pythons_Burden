@@ -12,7 +12,7 @@ from settings import (
 )
 
 
-class ItemTailCut:
+class TailCutItem:
     def __init__(
         self,
         game_map,
@@ -52,3 +52,55 @@ class ItemTailCut:
 
     def check_item_eaten(self, next_head: tuple[int, int]) -> bool:
         return next_head == self.pos
+
+
+class ItemManager:
+    def __init__(
+        self,
+        game_map,
+        occupied_positions: list[tuple[int, int]],
+    ):
+        self.tail_cut_items = []
+        self.occupied_positions = occupied_positions
+        self.spawn_tail_cut(game_map)
+
+    def spawn_tail_cut(
+        self,
+        game_map,
+    ) -> None:
+        tail_cut_item = TailCutItem(game_map, self.occupied_positions)
+
+        self.tail_cut_items.append(tail_cut_item)
+        self.occupied_positions.append(tail_cut_item.pos)
+
+    def get_eaten_tail_cut(
+        self,
+        next_head: tuple[int, int],
+    ) -> TailCutItem | None:
+        for tail_cut_item in self.tail_cut_items:
+            if tail_cut_item.check_item_eaten(next_head):
+                return tail_cut_item
+
+        return None
+
+    def handle_tail_cut_eaten(
+        self,
+        eaten_tail_cut_item: TailCutItem,
+        player_snake,
+        collected_letters: list[str],
+    ) -> list[str]:
+        if eaten_tail_cut_item in self.tail_cut_items:
+            self.tail_cut_items.remove(eaten_tail_cut_item)
+
+        if eaten_tail_cut_item.pos in self.occupied_positions:
+            self.occupied_positions.remove(eaten_tail_cut_item.pos)
+
+        if len(collected_letters) > 0:
+            collected_letters.pop()
+            player_snake.cut_tail(1)
+
+        return collected_letters
+
+    def draw(self, screen, font) -> None:
+        for tail_cut_item in self.tail_cut_items:
+            tail_cut_item.draw(screen, font)
