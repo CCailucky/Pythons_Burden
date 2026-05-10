@@ -7,6 +7,7 @@ from settings import (
     MAP_X,
     MAP_Y,
     SNAKE_COLOUR,
+    TEXT_COLOUR,
     DIRECTIONS,
     INITIAL_SNAKE_BODY,
     INITIAL_LIVES,
@@ -22,18 +23,6 @@ class Snake:
         for segment in self.body:
             if segment not in self.occupied_positions:
                 self.occupied_positions.append(segment)
-
-    def draw(self, screen) -> None:
-        for segment in self.body:
-            x, y = segment
-            # start from (MAP_X, MAP_Y)
-            rect = pygame.Rect(
-                MAP_X + x * GRID_SIZE,
-                MAP_Y + y * GRID_SIZE,
-                GRID_SIZE,
-                GRID_SIZE,
-            )
-            pygame.draw.rect(screen, SNAKE_COLOUR, rect)
 
     def move(self, next_head: tuple[int, int], should_grow: bool) -> None:
         self.body.insert(0, next_head)  # insert new head into snake_body[0]
@@ -86,15 +75,31 @@ class Snake:
     def is_dead(self) -> bool:
         return self.lives <= 0
 
+    # not allowed to be over grid_width
+    def create_respawn_body(self, length: int) -> list[tuple[int, int]]:
+        head_y = 20
+
+        if length <= GRID_WIDTH:
+            head_x = length - 1
+        else:
+            head_x = GRID_WIDTH - 1
+        body = []
+        for i in range(length):
+            x = head_x - i
+            if x < 0:
+                x = 0
+            body.append((x, head_y))
+
+        return body
+
     # just revive, no lives reset
     def revive(self) -> None:
+        current_length = len(self.body)
         for segment in self.body:
             if segment in self.occupied_positions:
                 self.occupied_positions.remove(segment)
-
-        self.body = INITIAL_SNAKE_BODY.copy()
+        self.body = self.create_respawn_body(current_length)
         self.direction = DIRECTIONS["RIGHT"]
-
         for segment in self.body:
             if segment not in self.occupied_positions:
                 self.occupied_positions.append(segment)
@@ -103,14 +108,12 @@ class Snake:
         for segment in self.body:
             if segment in self.occupied_positions:
                 self.occupied_positions.remove(segment)
-
         self.body = INITIAL_SNAKE_BODY.copy()
         self.direction = DIRECTIONS["RIGHT"]
-
         for segment in self.body:
             if segment not in self.occupied_positions:
                 self.occupied_positions.append(segment)
-        self.lives = 3
+        self.lives = INITIAL_LIVES
 
     def cut_tail(self, cut_count: int) -> None:
         for i in range(cut_count):
@@ -118,3 +121,39 @@ class Snake:
                 removed_tail = self.body.pop()
                 if removed_tail in self.occupied_positions:
                     self.occupied_positions.remove(removed_tail)
+
+    # def draw(self, screen) -> None:
+    #     for segment in self.body:
+    #         x, y = segment
+    #         # start from (MAP_X, MAP_Y)
+    #         rect = pygame.Rect(
+    #             MAP_X + x * GRID_SIZE,
+    #             MAP_Y + y * GRID_SIZE,
+    #             GRID_SIZE,
+    #             GRID_SIZE,
+    #         )
+    #         pygame.draw.rect(screen, SNAKE_COLOUR, rect)
+
+    def draw(self, screen, font, collected_letters: list[str]) -> None:
+        # get index and segment
+        for index, segment in enumerate(self.body):
+            x, y = segment
+
+            rect = pygame.Rect(
+                MAP_X + x * GRID_SIZE,
+                MAP_Y + y * GRID_SIZE,
+                GRID_SIZE,
+                GRID_SIZE,
+            )
+
+            pygame.draw.rect(screen, SNAKE_COLOUR, rect)
+
+            # index 0 is the snake head, so no letter on the head.
+            if index > 0:
+                letter_index = index - 1
+
+                if letter_index < len(collected_letters):
+                    letter = collected_letters[letter_index]
+                    letter_text = font.render(letter, True, TEXT_COLOUR)
+                    letter_rect = letter_text.get_rect(center=rect.center)
+                    screen.blit(letter_text, letter_rect)

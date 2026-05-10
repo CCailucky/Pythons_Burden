@@ -167,7 +167,7 @@ def main():
         # draw
         screen.fill(BACKGROUND_COLOUR)
         game_map.draw(screen)
-        player_snake.draw(screen)
+        player_snake.draw(screen, font, collected_letters)
         apple_manager.draw(screen, font)
         item_manager.draw(screen, font)
         ui.draw(
