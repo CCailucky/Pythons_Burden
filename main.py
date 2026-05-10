@@ -16,7 +16,7 @@ from apple import (
 from ui import UI
 from game_map import GameMap
 from events import handle_events
-
+from item import ItemTailCut
 
 # reset game
 def reset_game(game_map) -> tuple[Snake, AppleManager, list[str], bool, bool]:
@@ -41,7 +41,6 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Python's Burden: Escape from COMP9001")
     clock = pygame.time.Clock()
-
     # ---arguments--- #
     game_running = True
     game_over = False
@@ -63,7 +62,13 @@ def main():
         collected_letters,
         MAX_APPLES,
     )
+    # item
+    occupied_positions = player_snake.body.copy()
 
+    for apple in apple_manager.apples:
+        occupied_positions.append(apple.pos)
+
+    item_tail_cut = ItemTailCut(game_map, occupied_positions)
     # main loop
     while game_running:
         # event handle (handle events like key press)
@@ -80,6 +85,17 @@ def main():
                 game_over,
                 game_win,
             ) = reset_game(game_map)
+
+            occupied_positions = player_snake.body.copy()
+
+            for apple in apple_manager.apples:
+                occupied_positions.append(apple.pos)
+
+            item_tail_cut = ItemTailCut(game_map, occupied_positions)
+
+
+
+
         if not game_over and not game_win:
             # update apples’ status
             apple_manager.update(
@@ -89,11 +105,13 @@ def main():
             )
             # next_head_pos for checking whether the apple is eaten
             next_head = player_snake.get_next_head_pos()
+            is_item_tail_cut_eaten = item_tail_cut.check_item_eaten(next_head)
             eaten_apple = apple_manager.get_eaten_apple(next_head)
             if eaten_apple == None:
                 is_apple_eaten = False
             else:
                 is_apple_eaten = True
+
             # collide with the wall
             if not game_map.is_walkable(next_head):
                 player_snake.lose_life()
@@ -107,6 +125,7 @@ def main():
                         game_map,
                         collected_letters,
                     )
+
             # self collision
             elif player_snake.check_self_collision(next_head, is_apple_eaten):
                 player_snake.lose_life()
@@ -120,6 +139,7 @@ def main():
                         game_map,
                         collected_letters,
                     )
+
             # snake move normally
             else:
                 # include move and whether the snake should grow code function
@@ -133,6 +153,15 @@ def main():
                         collected_letters,
                     )
 
+                if is_item_tail_cut_eaten:
+                    if len(collected_letters) > 0:
+                        collected_letters.pop()
+                        player_snake.cut_tail(1)
+                    occupied_positions = player_snake.body.copy()
+                    for apple in apple_manager.apples:
+                        occupied_positions.append(apple.pos)
+                    item_tail_cut = ItemTailCut(game_map, occupied_positions)
+
                     if check_target_completed(collected_letters):
                         game_win = True
 
@@ -141,6 +170,7 @@ def main():
         game_map.draw(screen)
         player_snake.draw(screen)
         apple_manager.draw(screen, font)
+        item_tail_cut.draw(screen, font)
         ui.draw(
             screen,
             player_snake.lives,

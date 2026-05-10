@@ -84,3 +84,7 @@ class Snake:
         self.body = [(20, 20), (19, 20), (18, 20), (17, 20), (16, 20)]
         self.direction = DIRECTIONS["RIGHT"]
         self.lives = 3
+    def cut_tail(self, cut_count: int) -> None:
+        for i in range(cut_count):
+            if len(self.body) > 1:
+                self.body.pop()
