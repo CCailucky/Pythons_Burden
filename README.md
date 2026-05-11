@@ -20,8 +20,12 @@ step 14: game win
 step 15: encapsulate apple,snake,map,UI into class.(this step is easy to cause bugs)
 step 16: add walls
 step 17: add multiple apples
-
-
+step 18: optimize respawn logic
+step 19: add apple system
+step 20: add item system
+step 21: show the letters on the snake body
+step 22: tailcut items will cut 1-3 tails randomly
+step 23: add UI status msgs
 
 
 

@@ -19,6 +19,7 @@ class TailCutItem:
         occupied_positions: list[tuple[int, int]],
     ):
         self.pos = self.spawn_and_get_position(game_map, occupied_positions)
+        self.cut_count = random.randint(1, 3)
 
     def spawn_and_get_position(
         self,
@@ -95,9 +96,12 @@ class ItemManager:
         if eaten_tail_cut_item.pos in self.occupied_positions:
             self.occupied_positions.remove(eaten_tail_cut_item.pos)
 
-        if len(collected_letters) > 0:
-            collected_letters.pop()
-            player_snake.cut_tail(1)
+        cut_count = eaten_tail_cut_item.cut_count
+        for i in range(cut_count):
+            if len(collected_letters) > 0:
+                collected_letters.pop()
+
+        player_snake.cut_tail(cut_count)
 
         return collected_letters
 

@@ -22,6 +22,16 @@ from settings import (
 class UI:
     def __init__(self, font):
         self.font = font
+        self.status_messages = []  # 5 msgs
+
+    def add_status_message(self, message: str) -> None:
+        self.status_messages.append(message)
+        if len(self.status_messages) > 5:
+            self.status_messages.pop(0)
+
+    def reset_status_messages(self) -> None:
+        self.status_messages = []
+        self.add_status_message("Game started!")
 
     def draw(
         self,
@@ -37,7 +47,8 @@ class UI:
         self.draw_lives(screen, lives)
         self.draw_target_sequence(screen)
         self.draw_collected_letters(screen, collected_letters)
-        self.draw_game_status(screen, game_over, game_win)
+        self.draw_status_messages(screen)
+        #self.draw_game_status(screen, game_over, game_win)
 
     def draw_background(self, screen) -> None:
         ui_rect = pygame.Rect(UI_X, UI_Y, UI_WIDTH, UI_HEIGHT)
@@ -77,26 +88,35 @@ class UI:
         )
         screen.blit(collected_value, (UI_X + 20, UI_Y + 280))
 
-    def draw_game_status(
-        self,
-        screen,
-        game_over: bool,
-        game_win: bool,
-    ) -> None:
-        if game_over:
-            game_over_text = self.font.render("Game Over", True, TEXT_COLOUR)
-            screen.blit(game_over_text, (UI_X + 20, UI_Y + 340))
+    def draw_status_messages(self, screen) -> None:
+        status_text = self.font.render("Status:", True, TEXT_COLOUR)
+        screen.blit(status_text, (UI_X + 20, UI_Y + 340))
 
-            restart_text = self.font.render("Press R to restart", True, TEXT_COLOUR)
-            screen.blit(restart_text, (UI_X + 20, UI_Y + 390))
+        for i in range(len(self.status_messages)):
+            message = self.status_messages[i]
+            message_text = self.font.render(message, True, TEXT_COLOUR)
+            screen.blit(message_text, (UI_X + 20, UI_Y + 370 + i * 30))
 
-        if game_win:
-            victory_text = self.font.render(
-                "Sequence Complete! You Win!",
-                True,
-                TEXT_COLOUR,
-            )
-            screen.blit(victory_text, (UI_X + 20, UI_Y + 340))
+    # def draw_game_status(
+    #     self,
+    #     screen,
+    #     game_over: bool,
+    #     game_win: bool,
+    # ) -> None:
+    #     if game_over:
+    #         game_over_text = self.font.render("Game Over", True, TEXT_COLOUR)
+    #         screen.blit(game_over_text, (UI_X + 20, UI_Y + 520))
 
-            restart_text = self.font.render("Press R to restart", True, TEXT_COLOUR)
-            screen.blit(restart_text, (UI_X + 20, UI_Y + 390))
+    #         restart_text = self.font.render("Press R to restart", True, TEXT_COLOUR)
+    #         screen.blit(restart_text, (UI_X + 20, UI_Y + 550))
+
+    #     if game_win:
+    #         victory_text = self.font.render(
+    #             "Sequence Complete! You Win!",
+    #             True,
+    #             TEXT_COLOUR,
+    #         )
+    #         screen.blit(victory_text, (UI_X + 20, UI_Y + 520))
+
+    #         restart_text = self.font.render("Press R to restart", True, TEXT_COLOUR)
+    #         screen.blit(restart_text, (UI_X + 20, UI_Y + 550))
