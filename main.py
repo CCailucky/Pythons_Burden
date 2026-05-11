@@ -62,8 +62,9 @@ def main():
     # game map
     game_map = GameMap()
     # font
-    font = pygame.font.Font(None, 28)
-    ui = UI(font)
+    ui_font = pygame.font.Font(None, 28)
+    grid_font = pygame.font.Font(None, 26)
+    ui = UI(ui_font)
     # initialization
     (
         player_snake,
@@ -170,10 +171,12 @@ def main():
                     removed_count = old_length - len(collected_letters)
 
                     if removed_count > 0:
-                        ui.add_status_message(f"TailCut removed {removed_count} tail(s)")
+                        ui.add_status_message(
+                            f"TailCut removed {removed_count} tail(s)"
+                        )
                     else:
                         ui.add_status_message("Nothing to cut")
-                        
+
                 if check_target_completed(collected_letters):
                     game_win = True
                     ui.add_status_message("Sequence Complete! You Win!")
@@ -182,9 +185,9 @@ def main():
         # draw
         screen.fill(BACKGROUND_COLOUR)
         game_map.draw(screen)
-        player_snake.draw(screen, font, collected_letters)
-        apple_manager.draw(screen, font)
-        item_manager.draw(screen, font)
+        player_snake.draw(screen, grid_font, collected_letters)
+        apple_manager.draw(screen, grid_font)
+        item_manager.draw(screen, grid_font)
         ui.draw(
             screen,
             player_snake.lives,
@@ -194,7 +197,7 @@ def main():
         )
         pygame.display.flip()  # draw all
 
-        clock.tick(8)  # FPS
+        clock.tick(7)  # FPS
     pygame.quit()
 
 

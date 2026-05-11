@@ -77,7 +77,7 @@ class Snake:
 
     # not allowed to be over grid_width
     def create_respawn_body(self, length: int) -> list[tuple[int, int]]:
-        head_y = 20
+        head_y = GRID_HEIGHT * 2 // 3
 
         if length <= GRID_WIDTH:
             head_x = length - 1
