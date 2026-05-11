@@ -159,15 +159,21 @@ def main():
                     ui.add_status_message(f'Eat letter "{eaten_apple.letter}"')
 
                 if is_tail_cut_eaten:
+                    cut_count = eaten_tail_cut_item.cut_count
+                    old_length = len(collected_letters)
                     collected_letters = item_manager.handle_tail_cut_eaten(
                         eaten_tail_cut_item,
                         player_snake,
                         collected_letters,
                     )
                     item_manager.spawn_tail_cut(game_map)
-                    ui.add_status_message(
-                        f"TailCut removed {eaten_tail_cut_item.cut_count} tail(s)"
-                    )
+                    removed_count = old_length - len(collected_letters)
+
+                    if removed_count > 0:
+                        ui.add_status_message(f"TailCut removed {removed_count} tail(s)")
+                    else:
+                        ui.add_status_message("Nothing to cut")
+                        
                 if check_target_completed(collected_letters):
                     game_win = True
                     ui.add_status_message("Sequence Complete! You Win!")
