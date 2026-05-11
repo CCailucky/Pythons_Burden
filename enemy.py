@@ -214,6 +214,12 @@ class EnemyManager:
 
         self.enemy_snakes.append(enemy_snake)
 
+    def check_player_collision(self, player_next_head: tuple[int, int]) -> bool:
+        for enemy_snake in self.enemy_snakes:
+            if player_next_head in enemy_snake.body:
+                return True
+        return False
+        
     def update(self, game_map) -> None:
         current_time = pygame.time.get_ticks()
 

@@ -122,18 +122,6 @@ class Snake:
                 if removed_tail in self.occupied_positions:
                     self.occupied_positions.remove(removed_tail)
 
-    # def draw(self, screen) -> None:
-    #     for segment in self.body:
-    #         x, y = segment
-    #         # start from (MAP_X, MAP_Y)
-    #         rect = pygame.Rect(
-    #             MAP_X + x * GRID_SIZE,
-    #             MAP_Y + y * GRID_SIZE,
-    #             GRID_SIZE,
-    #             GRID_SIZE,
-    #         )
-    #         pygame.draw.rect(screen, SNAKE_COLOUR, rect)
-
     def draw(self, screen, font, collected_letters: list[str]) -> None:
         # get index and segment
         for index, segment in enumerate(self.body):

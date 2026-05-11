@@ -169,7 +169,21 @@ def main():
                         game_map,
                         collected_letters,
                     )
+            # collide with the enemy snake
+            elif enemy_manager.check_player_collision(next_head):
+                player_snake.lose_life()
+                ui.add_status_message("Hit enemy snake! Life -1")
 
+                if player_snake.is_dead():
+                    game_over = True
+                    ui.add_status_message("Game Over")
+                    ui.add_status_message("Press R to restart")
+                else:
+                    player_snake.revive()
+                    apple_manager.spawn_apples(
+                        game_map,
+                        collected_letters,
+                    )
             # snake move normally
             else:
                 # include move and whether the snake should grow code function
