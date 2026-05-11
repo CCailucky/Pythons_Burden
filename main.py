@@ -15,6 +15,7 @@ from ui import UI
 from game_map import GameMap
 from events import handle_events
 from item import ItemManager
+from enemy import EnemyManager
 
 
 # reset game
@@ -33,7 +34,7 @@ def reset_game(game_map, ui):
         game_map,
         occupied_positions,
     )
-
+    enemy_manager = EnemyManager(occupied_positions)
     game_over = False
     game_win = False
     game_started = False
@@ -43,6 +44,7 @@ def reset_game(game_map, ui):
         player_snake,
         apple_manager,
         item_manager,
+        enemy_manager,
         collected_letters,
         occupied_positions,
         game_over,
@@ -73,6 +75,7 @@ def main():
         player_snake,
         apple_manager,
         item_manager,
+        enemy_manager,
         collected_letters,
         occupied_positions,
         game_over,
@@ -105,6 +108,7 @@ def main():
                 player_snake,
                 apple_manager,
                 item_manager,
+                enemy_manager,
                 collected_letters,
                 occupied_positions,
                 game_over,
@@ -112,7 +116,6 @@ def main():
                 game_started,
                 game_paused,
             ) = reset_game(game_map, ui)
-
 
         if game_started and not game_paused and not game_over and not game_win:
             # update apples’ status manager
@@ -132,6 +135,8 @@ def main():
                 is_tail_cut_eaten = False
             else:
                 is_tail_cut_eaten = True
+
+            enemy_manager.update(game_map)
 
             # collide with the wall
             if not game_map.is_walkable(next_head):
@@ -207,6 +212,7 @@ def main():
         player_snake.draw(screen, grid_font, collected_letters)
         apple_manager.draw(screen, grid_font)
         item_manager.draw(screen, grid_font)
+        enemy_manager.draw(screen)
         ui.draw(
             screen,
             player_snake.lives,
@@ -216,7 +222,7 @@ def main():
         )
         pygame.display.flip()  # draw all
 
-        clock.tick(7)  # FPS
+        clock.tick(12)  # FPS
     pygame.quit()
 
 

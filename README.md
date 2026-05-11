@@ -26,6 +26,8 @@ step 20: add item system
 step 21: show the letters on the snake body
 step 22: tailcut items will cut 1-3 tails randomly
 step 23: add UI status msgs
+step 24: add ASCII map
+step 25: add start, pause and resume button
 
 
 
