@@ -36,6 +36,8 @@ def reset_game(game_map, ui):
 
     game_over = False
     game_win = False
+    game_started = False
+    game_paused = False
     ui.reset_status_messages()
     return (
         player_snake,
@@ -45,6 +47,8 @@ def reset_game(game_map, ui):
         occupied_positions,
         game_over,
         game_win,
+        game_started,
+        game_paused,
     )
 
 
@@ -55,9 +59,8 @@ def main():
     clock = pygame.time.Clock()
 
     # ---arguments--- #
+
     game_running = True
-    game_over = False
-    game_win = False
     restart_request = False
     # game map
     game_map = GameMap()
@@ -74,16 +77,29 @@ def main():
         occupied_positions,
         game_over,
         game_win,
+        game_started,
+        game_paused,
     ) = reset_game(game_map, ui)
 
     # main loop
     while game_running:
+
         # event handle (handle events like key press)
-        game_running, player_snake.direction, restart_request = handle_events(
+        (
+            game_running,
+            player_snake.direction,
+            restart_request,
+            game_started,
+            game_paused,
+        ) = handle_events(
             game_running,
             player_snake.direction,
             game_over or game_win,
+            game_started,
+            game_paused,
+            ui,
         )
+
         if restart_request:
             (
                 player_snake,
@@ -93,9 +109,12 @@ def main():
                 occupied_positions,
                 game_over,
                 game_win,
+                game_started,
+                game_paused,
             ) = reset_game(game_map, ui)
 
-        if not game_over and not game_win:
+
+        if game_started and not game_paused and not game_over and not game_win:
             # update apples’ status manager
             apple_manager.update(
                 game_map,

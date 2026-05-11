@@ -31,7 +31,7 @@ class UI:
 
     def reset_status_messages(self) -> None:
         self.status_messages = []
-        self.add_status_message("Game started!")
+        self.add_status_message("Press SPACE to start")
 
     def draw(
         self,
@@ -62,16 +62,22 @@ class UI:
         control_text = self.font.render("Arrow Keys: Move", True, TEXT_COLOUR)
         screen.blit(control_text, (UI_X + 20, UI_Y + 70))
 
+        pause_text = self.font.render("P: Pause / Resume", True, TEXT_COLOUR)
+        screen.blit(pause_text, (UI_X + 20, UI_Y + 100))
+
+        start_text = self.font.render("SPACE: Start", True, TEXT_COLOUR)
+        screen.blit(start_text, (UI_X + 20, UI_Y + 130))
+
     def draw_lives(self, screen, lives: int) -> None:
         lives_text = self.font.render(f"Lives: {lives}", True, TEXT_COLOUR)
-        screen.blit(lives_text, (UI_X + 20, UI_Y + 120))
+        screen.blit(lives_text, (UI_X + 20, UI_Y + 170))
 
     def draw_target_sequence(self, screen) -> None:
         target_text = self.font.render("Target:", True, TEXT_COLOUR)
-        screen.blit(target_text, (UI_X + 20, UI_Y + 170))
+        screen.blit(target_text, (UI_X + 20, UI_Y + 2200))
 
         target_value = self.font.render(TARGET_SEQUENCE, True, TEXT_COLOUR)
-        screen.blit(target_value, (UI_X + 20, UI_Y + 200))
+        screen.blit(target_value, (UI_X + 20, UI_Y + 250))
 
     def draw_collected_letters(
         self,
@@ -79,23 +85,23 @@ class UI:
         collected_letters: list[str],
     ) -> None:
         collected_text = self.font.render("Collected:", True, TEXT_COLOUR)
-        screen.blit(collected_text, (UI_X + 20, UI_Y + 250))
+        screen.blit(collected_text, (UI_X + 20, UI_Y + 300))
 
         collected_value = self.font.render(
             "".join(collected_letters),
             True,
             TEXT_COLOUR,
         )
-        screen.blit(collected_value, (UI_X + 20, UI_Y + 280))
+        screen.blit(collected_value, (UI_X + 20, UI_Y + 330))
 
     def draw_status_messages(self, screen) -> None:
         status_text = self.font.render("Status:", True, TEXT_COLOUR)
-        screen.blit(status_text, (UI_X + 20, UI_Y + 340))
+        screen.blit(status_text, (UI_X + 20, UI_Y + 390))
 
         for i in range(len(self.status_messages)):
             message = self.status_messages[i]
             message_text = self.font.render(message, True, TEXT_COLOUR)
-            screen.blit(message_text, (UI_X + 20, UI_Y + 370 + i * 30))
+            screen.blit(message_text, (UI_X + 20, UI_Y + 420 + i * 30))
 
     # def draw_game_status(
     #     self,
