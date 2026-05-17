@@ -17,8 +17,13 @@ class TailCutItem:
         self,
         game_map,
         occupied_positions: list[tuple[int, int]],
+        pos: tuple[int, int] | None = None,
     ):
-        self.pos = self.spawn_and_get_position(game_map, occupied_positions)
+        # tailcutitem can be assigned a specific position or a random position
+        if pos is None:
+            self.pos = self.spawn_and_get_position(game_map, occupied_positions)
+        else:
+            self.pos = pos
         self.cut_count = random.randint(1, 3)
 
     def spawn_and_get_position(
@@ -70,6 +75,20 @@ class ItemManager:
         game_map,
     ) -> None:
         tail_cut_item = TailCutItem(game_map, self.occupied_positions)
+
+        self.tail_cut_items.append(tail_cut_item)
+        self.occupied_positions.append(tail_cut_item.pos)
+
+    def spawn_tail_cut_at_position(
+        self,
+        game_map,
+        pos: tuple[int, int],
+    ) -> None:
+        tail_cut_item = TailCutItem(
+            game_map,
+            self.occupied_positions,
+            pos,
+        )
 
         self.tail_cut_items.append(tail_cut_item)
         self.occupied_positions.append(tail_cut_item.pos)

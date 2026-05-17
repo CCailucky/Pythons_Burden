@@ -8,6 +8,7 @@ from settings import (
     MAP_X,
     MAP_Y,
     APPLE_COLOUR,
+    GOLDEN_APPLE_COLOUR,
     TEXT_COLOUR,
     TARGET_SEQUENCE,
     APPLE_LIFETIME_MS,
@@ -71,6 +72,34 @@ class Apple:
         return current_time - self.spawn_time >= self.lifetime
 
 
+class GoldenApple(Apple):
+    def __init__(
+        self,
+        pos: tuple[int, int],
+        letter: str = "?",
+    ):
+        self.pos = pos
+        self.letter = letter
+        self.spawn_time = pygame.time.get_ticks()
+        self.lifetime = self.get_random_lifetime()
+
+    def draw(self, screen, font) -> None:
+        x, y = self.pos
+
+        rect = pygame.Rect(
+            MAP_X + x * GRID_SIZE,
+            MAP_Y + y * GRID_SIZE,
+            GRID_SIZE,
+            GRID_SIZE,
+        )
+
+        pygame.draw.rect(screen, GOLDEN_APPLE_COLOUR, rect)
+
+        letter_text = font.render(self.letter, True, TEXT_COLOUR)
+        letter_rect = letter_text.get_rect(center=rect.center)
+        screen.blit(letter_text, letter_rect)
+
+
 #
 #
 #
@@ -89,14 +118,17 @@ class AppleManager:
     ):
         self.max_apples = max_apples
         self.apples = []
+        self.golden_apples = []
         self.occupied_positions = occupied_positions
         self.spawn_apples(game_map, collected_letters)
+
     def get_next_required_letter(self, collected_letters: list[str]) -> str:
         next_index = len(collected_letters)
         if next_index < len(TARGET_SEQUENCE):
             return TARGET_SEQUENCE[next_index]
         return "?"
-# after spawning, occupied_positions must be updated
+
+    # after spawning, occupied_positions must be updated
     def spawn_one_apple(
         self,
         game_map,
@@ -138,6 +170,15 @@ class AppleManager:
                 random_letter,
             )
 
+    def spawn_golden_apple(
+        self,
+        pos: tuple[int, int],
+    ) -> None:
+        golden_apple = GoldenApple(pos)
+
+        self.golden_apples.append(golden_apple)
+        self.occupied_positions.append(golden_apple.pos)
+
     def has_correct_letter(self, correct_letter: str) -> bool:
         for apple in self.apples:
             if apple.letter == correct_letter:
@@ -166,10 +207,7 @@ class AppleManager:
         if len(self.apples) < self.max_apples and not self.has_correct_letter(
             required_letter
         ):
-            self.spawn_one_apple(
-                game_map,
-                required_letter
-            )
+            self.spawn_one_apple(game_map, required_letter)
         # refill random letter apple
         while len(self.apples) < self.max_apples:
             random_letter = get_random_apple_letter()
@@ -189,9 +227,14 @@ class AppleManager:
         self.refill_apples(game_map, collected_letters)
 
     def get_eaten_apple(self, next_head: tuple[int, int]) -> Apple | None:
+        for golden_apple in self.golden_apples:
+            if golden_apple.check_apple_eaten(next_head):
+                return golden_apple
+
         for apple in self.apples:
             if apple.check_apple_eaten(next_head):
                 return apple
+
         return None
 
     def handle_apple_eaten(
@@ -202,13 +245,18 @@ class AppleManager:
     ) -> list[str]:
         if eaten_apple in self.apples:
             self.apples.remove(eaten_apple)
+
+        if eaten_apple in self.golden_apples:
+            self.golden_apples.remove(eaten_apple)
+            # get the true letter of the sequence
+            correct_letter = self.get_next_required_letter(collected_letters)
+            eaten_apple.letter = correct_letter
+
         if eaten_apple.pos in self.occupied_positions:
             self.occupied_positions.remove(eaten_apple.pos)
+
         collected_letters.append(eaten_apple.letter)
-        self.refill_apples(
-            game_map,
-            collected_letters
-        )
+        self.refill_apples(game_map, collected_letters)
 
         return collected_letters
 
@@ -216,6 +264,9 @@ class AppleManager:
     def draw(self, screen, font) -> None:
         for apple in self.apples:
             apple.draw(screen, font)
+
+        for golden_apple in self.golden_apples:
+            golden_apple.draw(screen, font)
 
 
 def check_target_completed(collected_letters: list[str]) -> bool:

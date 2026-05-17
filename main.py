@@ -136,8 +136,15 @@ def main():
             else:
                 is_tail_cut_eaten = True
 
+            # update enemy snake
             enemy_manager.update(game_map)
-
+            enemy_manager.handle_enemy_drops(
+                game_map,
+                apple_manager,
+                item_manager,
+                collected_letters,
+                ui,
+            )
             # collide with the wall
             if not game_map.is_walkable(next_head):
                 player_snake.lose_life()

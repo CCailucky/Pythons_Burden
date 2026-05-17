@@ -74,7 +74,7 @@ class UI:
 
     def draw_target_sequence(self, screen) -> None:
         target_text = self.font.render("Target:", True, TEXT_COLOUR)
-        screen.blit(target_text, (UI_X + 20, UI_Y + 2200))
+        screen.blit(target_text, (UI_X + 20, UI_Y + 220))
 
         target_value = self.font.render(TARGET_SEQUENCE, True, TEXT_COLOUR)
         screen.blit(target_value, (UI_X + 20, UI_Y + 250))

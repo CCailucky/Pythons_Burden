@@ -140,6 +140,6 @@ class GameMap:
     def is_available_for_spawn(
         self,
         pos: tuple[int, int],
-        occupied_positions: set[tuple[int, int]],
+        occupied_positions: list[tuple[int, int]],
     ) -> bool:
         return self.is_walkable(pos) and pos not in occupied_positions

@@ -24,6 +24,9 @@ class EnemySnake:
         self.body = self.spawn_and_get_body(game_map)
         self.alive = True
         self.steps_remaining = random.randint(ENEMY_MIN_STEPS, ENEMY_MAX_STEPS)
+        # pos when enemy snake dies
+        self.death_head_pos = None
+        self.death_tail_pos = None
 
         for segment in self.body:
             self.occupied_positions.append(segment)
@@ -113,15 +116,12 @@ class EnemySnake:
         forward = self.direction
         left = self.turn_left(self.direction)
         right = self.turn_right(self.direction)
-
         forward_pos = self.get_next_head_pos(forward)
-        left_pos = self.get_next_head_pos(left)
-        right_pos = self.get_next_head_pos(right)
         # First priority: moving forward
         if self.can_move_to(game_map, forward_pos):
             self.direction = forward
             return True
-        # Second priority: 
+        # Second priority:
         # If cant move forward, randomly choose to try left or right.
         side_directions = [left, right]
         random.shuffle(side_directions)
@@ -177,6 +177,8 @@ class EnemySnake:
 
     def die(self) -> None:
         self.alive = False
+        self.death_head_pos = self.body[0]
+        self.death_tail_pos = self.body[-1]
         for segment in self.body:
             if segment in self.occupied_positions:
                 self.occupied_positions.remove(segment)
@@ -202,6 +204,7 @@ class EnemyManager:
         self.occupied_positions = occupied_positions
         self.enemy_snakes = []
         self.last_spawn_time = pygame.time.get_ticks()
+        self.dead_enemy_positions = []
 
     def spawn_enemy_snake(self, game_map) -> None:
         if len(self.enemy_snakes) >= MAX_ENEMY_SNAKES:
@@ -219,9 +222,27 @@ class EnemyManager:
             if player_next_head in enemy_snake.body:
                 return True
         return False
-        
+
+    def handle_enemy_drops(
+        self,
+        game_map,
+        apple_manager,
+        item_manager,
+        collected_letters: list[str],
+        ui,
+    ) -> None:
+        # spawn golden apple in head pos and tail cut item in tail pos
+        for head_pos, tail_pos in self.dead_enemy_positions:
+            apple_manager.spawn_golden_apple(head_pos)
+            item_manager.spawn_tail_cut_at_position(game_map, tail_pos)
+
+            ui.add_status_message("Enemy snake died! Drops spawned")
+        # clear
+        self.dead_enemy_positions = []
+
     def update(self, game_map) -> None:
         current_time = pygame.time.get_ticks()
+        self.dead_enemy_positions = []
 
         if current_time - self.last_spawn_time >= ENEMY_SPAWN_INTERVAL_MS:
             self.spawn_enemy_snake(game_map)
@@ -234,7 +255,11 @@ class EnemyManager:
 
             if enemy_snake.alive:
                 alive_enemies.append(enemy_snake)
-
+            # return pos
+            else:
+                self.dead_enemy_positions.append(
+                    (enemy_snake.death_head_pos, enemy_snake.death_tail_pos)
+                )
         self.enemy_snakes = alive_enemies
 
     def draw(self, screen) -> None:
