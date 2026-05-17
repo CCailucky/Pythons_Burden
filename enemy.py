@@ -240,6 +240,15 @@ class EnemyManager:
         # clear
         self.dead_enemy_positions = []
 
+    def check_player_body_overlap(self, player_body) -> bool:
+
+        for enemy_snake in self.enemy_snakes:
+            for segment in player_body:
+                if segment in enemy_snake.body:
+                    return True
+        return False
+
+
     def update(self, game_map) -> None:
         current_time = pygame.time.get_ticks()
         self.dead_enemy_positions = []

@@ -145,6 +145,8 @@ def main():
                 collected_letters,
                 ui,
             )
+            player_snake.update_invincible(enemy_manager)
+
             # collide with the wall
             if not game_map.is_walkable(next_head):
                 player_snake.lose_life()
@@ -155,6 +157,8 @@ def main():
                     ui.add_status_message("Press R to restart")
                 else:
                     player_snake.revive()
+                    # enter invincible mode for 3 secs
+                    player_snake.start_invincible()
                     # spawn a new batch of apples
                     apple_manager.spawn_apples(
                         game_map,
@@ -171,13 +175,19 @@ def main():
                     ui.add_status_message("Press R to restart")
                 else:
                     player_snake.revive()
+                    # enter invincible mode for 3 secs
+                    player_snake.start_invincible()
                     # respawn a new batch of apples
                     apple_manager.spawn_apples(
                         game_map,
                         collected_letters,
                     )
-            # collide with the enemy snake
-            elif enemy_manager.check_player_collision(next_head):
+
+            # collide with the enemy snake (when the snake becomes invincible, colliding with the enemy snakes has no effect)
+            elif (
+                not player_snake.is_invincible
+                and enemy_manager.check_player_collision(next_head)
+            ):
                 player_snake.lose_life()
                 ui.add_status_message("Hit enemy snake! Life -1")
 
@@ -187,6 +197,7 @@ def main():
                     ui.add_status_message("Press R to restart")
                 else:
                     player_snake.revive()
+                    player_snake.start_invincible()
                     apple_manager.spawn_apples(
                         game_map,
                         collected_letters,

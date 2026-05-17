@@ -20,6 +20,10 @@ class Snake:
         self.body = INITIAL_SNAKE_BODY.copy()
         self.lives = INITIAL_LIVES
         self.occupied_positions = occupied_positions
+        self.is_invincible = False
+        self.invincible_start_time = 0
+        self.invincible_duration_ms = 3000
+
         for segment in self.body:
             if segment not in self.occupied_positions:
                 self.occupied_positions.append(segment)
@@ -68,6 +72,24 @@ class Snake:
             return next_head in self.body
         # snake_body[:-1] for NO collision with the tail, because the tail will disappear in the next move
         return next_head in self.body[:-1]
+
+    def start_invincible(self) -> None:
+        self.is_invincible = True
+        self.invincible_start_time = pygame.time.get_ticks()
+
+    def update_invincible(self, enemy_manager) -> None:
+        if not self.is_invincible:
+            return
+
+        current_time = pygame.time.get_ticks()
+        is_invincible_time_passed = (
+            current_time - self.invincible_start_time >= self.invincible_duration_ms
+        )
+
+        if is_invincible_time_passed and not enemy_manager.check_player_body_overlap(
+            self.body
+        ):
+            self.is_invincible = False
 
     def lose_life(self) -> None:
         self.lives -= 1
@@ -123,6 +145,7 @@ class Snake:
                     self.occupied_positions.remove(removed_tail)
 
     def draw(self, screen, font, collected_letters: list[str]) -> None:
+
         # get index and segment
         for index, segment in enumerate(self.body):
             x, y = segment
@@ -133,8 +156,23 @@ class Snake:
                 GRID_SIZE,
                 GRID_SIZE,
             )
-
-            pygame.draw.rect(screen, SNAKE_COLOUR, rect)
+            # draw snake invincible by alpha access
+            if self.is_invincible:
+                snake_surface = pygame.Surface(
+                    (GRID_SIZE, GRID_SIZE),
+                    pygame.SRCALPHA,
+                )
+                snake_surface.fill(
+                    (
+                        SNAKE_COLOUR[0],
+                        SNAKE_COLOUR[1],
+                        SNAKE_COLOUR[2],
+                        100,
+                    )
+                )
+                screen.blit(snake_surface, rect)
+            else:
+                pygame.draw.rect(screen, SNAKE_COLOUR, rect)
 
             # index 0 is the snake head, so no letter on the head.
             if index > 0:
