@@ -117,6 +117,11 @@ class EnemySnake:
                 return True
             if item_manager != None and item_manager.get_eaten_tail_cut(pos) != None:
                 return True
+            if (
+                item_manager != None
+                and item_manager.get_eaten_bullet_supply(pos) != None
+            ):
+                return True
             return False
         return True
 
@@ -184,13 +189,15 @@ class EnemySnake:
     ):
         eaten_apple = apple_manager.get_eaten_apple(next_head)
         eaten_tail_cut_item = item_manager.get_eaten_tail_cut(next_head)
+        eaten_bullet_supply_item = item_manager.get_eaten_bullet_supply(next_head)
 
-        return eaten_apple, eaten_tail_cut_item
+        return eaten_apple, eaten_tail_cut_item, eaten_bullet_supply_item
 
     def handle_eaten_objects(
         self,
         eaten_apple,
         eaten_tail_cut_item,
+        eaten_bullet_supply_item,
         game_map,
         apple_manager,
         item_manager,
@@ -208,6 +215,11 @@ class EnemySnake:
                 eaten_tail_cut_item,
                 self,
                 game_map,
+            )
+
+        if eaten_bullet_supply_item != None:
+            item_manager.handle_bullet_supply_eaten_by_enemy(
+                eaten_bullet_supply_item,
             )
 
     # true move
@@ -249,10 +261,8 @@ class EnemySnake:
 
         next_head = self.get_next_head_pos(self.direction)
 
-        eaten_apple, eaten_tail_cut_item = self.get_eaten_objects(
-            next_head,
-            apple_manager,
-            item_manager,
+        eaten_apple, eaten_tail_cut_item, eaten_bullet_supply_item = (
+            self.get_eaten_objects(next_head, apple_manager, item_manager)
         )
 
         should_grow = eaten_apple != None
@@ -266,6 +276,7 @@ class EnemySnake:
         self.handle_eaten_objects(
             eaten_apple,
             eaten_tail_cut_item,
+            eaten_bullet_supply_item,
             game_map,
             apple_manager,
             item_manager,

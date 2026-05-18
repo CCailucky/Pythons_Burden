@@ -8,6 +8,11 @@ from settings import (
     MAP_X,
     MAP_Y,
     ITEM_TAIL_CUT_COLOUR,
+    BULLET_SUPPLY_COLOUR,
+    BULLET_SUPPLY_MIN_AMOUNT,
+    BULLET_SUPPLY_MAX_AMOUNT,
+    MAX_BULLET_SUPPLY_ITEMS,
+    BULLET_SUPPLY_SPAWN_INTERVAL_MS,
     TEXT_COLOUR,
 )
 
@@ -60,6 +65,52 @@ class TailCutItem:
         return next_head == self.pos
 
 
+class BulletSupplyItem:
+    def __init__(
+        self,
+        game_map,
+        occupied_positions: list[tuple[int, int]],
+    ):
+        self.pos = self.spawn_and_get_position(game_map, occupied_positions)
+        self.amount = random.randint(
+            BULLET_SUPPLY_MIN_AMOUNT,
+            BULLET_SUPPLY_MAX_AMOUNT,
+        )
+
+    def spawn_and_get_position(
+        self,
+        game_map,
+        occupied_positions: list[tuple[int, int]],
+    ) -> tuple[int, int]:
+        while True:
+            pos = (
+                random.randint(0, GRID_WIDTH - 1),
+                random.randint(0, GRID_HEIGHT - 1),
+            )
+
+            if game_map.is_available_for_spawn(pos, occupied_positions):
+                return pos
+
+    def draw(self, screen, font) -> None:
+        x, y = self.pos
+
+        rect = pygame.Rect(
+            MAP_X + x * GRID_SIZE,
+            MAP_Y + y * GRID_SIZE,
+            GRID_SIZE,
+            GRID_SIZE,
+        )
+
+        pygame.draw.rect(screen, BULLET_SUPPLY_COLOUR, rect)
+
+        text = font.render("B", True, TEXT_COLOUR)
+        text_rect = text.get_rect(center=rect.center)
+        screen.blit(text, text_rect)
+
+    def check_item_eaten(self, next_head: tuple[int, int]) -> bool:
+        return next_head == self.pos
+
+
 class ItemManager:
     def __init__(
         self,
@@ -67,17 +118,28 @@ class ItemManager:
         occupied_positions: list[tuple[int, int]],
     ):
         self.tail_cut_items = []
+        self.bullet_supply_items = []
+        self.last_bullet_supply_spawn_time = pygame.time.get_ticks()
         self.occupied_positions = occupied_positions
         self.spawn_tail_cut(game_map)
+        self.spawn_bullet_supply(game_map)
 
-    def spawn_tail_cut(
-        self,
-        game_map,
-    ) -> None:
+    def spawn_tail_cut(self, game_map) -> None:
         tail_cut_item = TailCutItem(game_map, self.occupied_positions)
 
         self.tail_cut_items.append(tail_cut_item)
         self.occupied_positions.append(tail_cut_item.pos)
+
+    def spawn_bullet_supply(self, game_map) -> None:
+        if len(self.bullet_supply_items) >= MAX_BULLET_SUPPLY_ITEMS:
+            return
+        bullet_supply_item = BulletSupplyItem(
+            game_map,
+            self.occupied_positions,
+        )
+
+        self.bullet_supply_items.append(bullet_supply_item)
+        self.occupied_positions.append(bullet_supply_item.pos)
 
     def spawn_tail_cut_at_position(
         self,
@@ -103,6 +165,16 @@ class ItemManager:
 
         return None
 
+    def get_eaten_bullet_supply(
+        self,
+        next_head: tuple[int, int],
+    ) -> BulletSupplyItem | None:
+        for bullet_supply_item in self.bullet_supply_items:
+            if bullet_supply_item.check_item_eaten(next_head):
+                return bullet_supply_item
+
+        return None
+
     def handle_tail_cut_eaten(
         self,
         eaten_tail_cut_item: TailCutItem,
@@ -125,7 +197,7 @@ class ItemManager:
         return collected_letters
 
     def handle_tail_cut_eaten_by_enemy(
-        self, eaten_tail_cut_item: TailCutItem, enemy_snake, game_map
+        self, eaten_tail_cut_item, enemy_snake, game_map
     ) -> None:
         if eaten_tail_cut_item in self.tail_cut_items:
             self.tail_cut_items.remove(eaten_tail_cut_item)
@@ -136,18 +208,62 @@ class ItemManager:
         enemy_snake.cut_tail(eaten_tail_cut_item.cut_count)
         # self.spawn_tail_cut(game_map)
 
+    def handle_bullet_supply_eaten_by_enemy(
+        self,
+        eaten_bullet_supply_item: BulletSupplyItem,
+    ) -> None:
+        if eaten_bullet_supply_item in self.bullet_supply_items:
+            self.bullet_supply_items.remove(eaten_bullet_supply_item)
+
+        if eaten_bullet_supply_item.pos in self.occupied_positions:
+            self.occupied_positions.remove(eaten_bullet_supply_item.pos)
+
+    def handle_bullet_supply_eaten(
+        self, eaten_bullet_supply_item, bullet_manager
+    ) -> int:
+        if eaten_bullet_supply_item in self.bullet_supply_items:
+            self.bullet_supply_items.remove(eaten_bullet_supply_item)
+
+        if eaten_bullet_supply_item.pos in self.occupied_positions:
+            self.occupied_positions.remove(eaten_bullet_supply_item.pos)
+
+        bullet_manager.add_bullets(eaten_bullet_supply_item.amount)
+
+        return eaten_bullet_supply_item.amount
+
     def handle_tail_cut_hit_by_bullet(self, pos: tuple[int, int]) -> bool:
         for tail_cut_item in self.tail_cut_items:
             if tail_cut_item.pos == pos:
                 self.tail_cut_items.remove(tail_cut_item)
-
                 if tail_cut_item.pos in self.occupied_positions:
                     self.occupied_positions.remove(tail_cut_item.pos)
-
                 return True
-
         return False
+
+    def handle_bullet_supply_hit_by_bullet(self, pos: tuple[int, int]) -> bool:
+        for bullet_supply_item in self.bullet_supply_items:
+            if bullet_supply_item.pos == pos:
+                self.bullet_supply_items.remove(bullet_supply_item)
+                if bullet_supply_item.pos in self.occupied_positions:
+                    self.occupied_positions.remove(bullet_supply_item.pos)
+                return True
+        return False
+
+    def update(self, game_map) -> None:
+        current_time = pygame.time.get_ticks()
+        if (
+            current_time - self.last_bullet_supply_spawn_time
+            < BULLET_SUPPLY_SPAWN_INTERVAL_MS
+        ):
+            return
+        if len(self.bullet_supply_items) >= MAX_BULLET_SUPPLY_ITEMS:
+            return
+        self.spawn_bullet_supply(game_map)
+        self.last_bullet_supply_spawn_time = current_time
 
     def draw(self, screen, font) -> None:
         for tail_cut_item in self.tail_cut_items:
             tail_cut_item.draw(screen, font)
+
+        for bullet_supply_item in self.bullet_supply_items:
+            bullet_supply_item.draw(screen, font)

@@ -46,6 +46,8 @@ USYD COMP9001 Final Project
 | 34 | Add bullet can destroy apple, tailcut item now |
 | 35 | Add bullet can kill the enemy snake, hit the head or the first segment of the body can kill the snake, hit the rest of the body can cut the body|
 | 36 | Add bullet can hurt player snake and -1 life |
+| 37 | Add bullet supply item, add random amount of the bullet |
+
 ## Project Structure
 
 ```text

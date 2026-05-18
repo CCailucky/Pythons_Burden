@@ -27,6 +27,7 @@ class Bullet:
         self.alive = True
         # fix bug: avoid immediately hitting player snake when shooting
         self.first_move = False
+
     def quantum_transit(self, position: tuple[int, int]) -> tuple[int, int]:
         x, y = position
 
@@ -129,7 +130,11 @@ class BulletManager:
 
         if item_manager.handle_tail_cut_hit_by_bullet(bullet.pos):
             bullet.alive = False
-            return "item"
+            return "tail_cut"
+
+        if item_manager.handle_bullet_supply_hit_by_bullet(bullet.pos):
+            bullet.alive = False
+            return "bullet_supply"
 
         if enemy_manager.handle_enemy_hit_by_bullet(bullet.pos):
             bullet.alive = False
@@ -171,6 +176,9 @@ class BulletManager:
                 alive_bullets.append(bullet)
         self.bullets = alive_bullets
         return player_hit_by_bullet
+
+    def add_bullets(self, amount: int) -> None:
+        self.bullet_count += amount
 
     def draw(self, screen) -> None:
         for bullet in self.bullets:

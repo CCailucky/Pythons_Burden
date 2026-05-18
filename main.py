@@ -139,6 +139,7 @@ def main():
 
         if game_started and not game_paused and not game_over and not game_win:
             current_time = pygame.time.get_ticks()
+            item_manager.update(game_map)
             # shoot bullet from the next position based on pending_direction
             if shoot_request:
                 bullet_manager.shoot(player_snake, pending_direction, game_map)
@@ -182,16 +183,16 @@ def main():
                 apple_manager.update(game_map, collected_letters)
                 # next_head_pos for checking whether the apple is eaten
                 next_head = player_snake.get_next_head_pos()
+
                 eaten_tail_cut_item = item_manager.get_eaten_tail_cut(next_head)
+                eaten_bullet_supply_item = item_manager.get_eaten_bullet_supply(
+                    next_head
+                )
                 eaten_apple = apple_manager.get_eaten_apple(next_head)
-                if eaten_apple == None:
-                    is_apple_eaten = False
-                else:
-                    is_apple_eaten = True
-                if eaten_tail_cut_item == None:
-                    is_tail_cut_eaten = False
-                else:
-                    is_tail_cut_eaten = True
+
+                is_apple_eaten = eaten_apple != None
+                is_tail_cut_eaten = eaten_tail_cut_item != None
+                is_bullet_supply_eaten = eaten_bullet_supply_item != None
 
                 # update enemy snake
                 enemy_manager.update(
@@ -274,22 +275,23 @@ def main():
                     # include respawn apple
                     if is_apple_eaten:
                         collected_letters = apple_manager.handle_apple_eaten(
-                            eaten_apple,
-                            game_map,
-                            collected_letters,
+                            eaten_apple, game_map, collected_letters
                         )
                         ui.add_status_message(f'Eat letter "{eaten_apple.letter}"')
 
+                    if is_bullet_supply_eaten:
+                        bullet_amount = item_manager.handle_bullet_supply_eaten(
+                            eaten_bullet_supply_item, bullet_manager
+                        )
+                        ui.add_status_message(f"Bullet supply +{bullet_amount}")
+                        
                     if is_tail_cut_eaten:
                         cut_count = eaten_tail_cut_item.cut_count
                         old_length = len(collected_letters)
                         collected_letters = item_manager.handle_tail_cut_eaten(
-                            eaten_tail_cut_item,
-                            player_snake,
-                            collected_letters,
+                            eaten_tail_cut_item, player_snake, collected_letters
                         )
-                        # respawn a tail cut item if got eaten
-                        # item_manager.spawn_tail_cut(game_map)
+
                         removed_count = old_length - len(collected_letters)
 
                         if removed_count > 0:
