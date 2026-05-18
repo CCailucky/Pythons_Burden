@@ -40,6 +40,7 @@ USYD COMP9001 Final Project
 | 28 | Add drops when enemy snake dies: golden apple and TailCut item |
 | 29 | Add snake invincibility after reviving.(has no effect on self-collision or wall-collision, only applies to enemy snake collision) |
 | 30 | Add enemy snake can eat apple and tailcut item now |
+| 31 | Add exit portal. Now the win condition is: player collects right sequence and enters the portal |
 ## Project Structure
 
 ```text

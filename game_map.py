@@ -9,6 +9,7 @@ from settings import (
     MAP_HEIGHT,
     MAP_COLOUR,
     WALL_COLOUR,
+    PORTAL_COLOUR,
 )
 
 EMPTY = "empty"
@@ -21,6 +22,8 @@ EXIT = "exit"
 class GameMap:
     def __init__(self):
         self.grid = self.create_empty_grid()
+        self.portal_positions = []
+        self.portal_active = False
         self.create_walls()
 
     def create_empty_grid(self) -> list[list[str]]:
@@ -118,6 +121,15 @@ class GameMap:
                     )
                     pygame.draw.rect(screen, WALL_COLOUR, wall_rect)
 
+                if cell_type == PORTAL:
+                    portal_rect = pygame.Rect(
+                        MAP_X + x * GRID_SIZE,
+                        MAP_Y + y * GRID_SIZE,
+                        GRID_SIZE,
+                        GRID_SIZE,
+                    )
+                    pygame.draw.rect(screen, PORTAL_COLOUR, portal_rect)
+
     def is_inside_map(self, pos: tuple[int, int]) -> bool:
         x, y = pos
 
@@ -143,3 +155,80 @@ class GameMap:
         occupied_positions: list[tuple[int, int]],
     ) -> bool:
         return self.is_walkable(pos) and pos not in occupied_positions
+
+    # for reset / restart
+    def clear_portal(self) -> None:
+        for pos in self.portal_positions:
+            self.set_grid(pos, EMPTY)
+
+        self.portal_positions = []
+        self.portal_active = False
+
+    # system can place 3x3 portal or not
+    def can_place_portal(
+        self,
+        top_left: tuple[int, int],
+        occupied_positions: list[tuple[int, int]],
+    ) -> bool:
+        start_x, start_y = top_left
+
+        for y in range(start_y, start_y + 3):
+            for x in range(start_x, start_x + 3):
+                pos = (x, y)
+
+                if not self.is_inside_map(pos):
+                    return False
+
+                if self.get_grid(pos) != EMPTY:
+                    return False
+
+                if pos in occupied_positions:
+                    return False
+
+        return True
+    # spawn a portal far away from player
+    def spawn_portal_far_from_player(
+        self,
+        player_pos: tuple[int, int],
+        occupied_positions: list[tuple[int, int]],
+    ) -> bool:
+        if self.portal_active:
+            return True
+
+        best_top_left = None
+        best_distance = -1
+
+        player_x, player_y = player_pos
+
+        for y in range(GRID_HEIGHT - 2):
+            for x in range(GRID_WIDTH - 2):
+                top_left = (x, y)
+
+                if self.can_place_portal(top_left, occupied_positions):
+                    center_x = x + 1
+                    center_y = y + 1
+                    # use Manhattan distance to judge the farthest distance
+                    distance = abs(center_x - player_x) + abs(center_y - player_y)
+
+                    if distance > best_distance:
+                        best_distance = distance
+                        best_top_left = top_left
+
+        if best_top_left == None:
+            return False
+
+        start_x, start_y = best_top_left
+
+        self.portal_positions = []
+
+        for y in range(start_y, start_y + 3):
+            for x in range(start_x, start_x + 3):
+                pos = (x, y)
+                self.set_grid(pos, PORTAL)
+                self.portal_positions.append(pos)
+
+        self.portal_active = True
+        return True
+
+    def is_portal(self, pos: tuple[int, int]) -> bool:
+        return self.get_grid(pos) == PORTAL

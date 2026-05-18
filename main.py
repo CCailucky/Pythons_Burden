@@ -20,6 +20,8 @@ from enemy import EnemyManager
 
 # reset game
 def reset_game(game_map, ui):
+
+    game_map.clear_portal()
     occupied_positions = []
     player_snake = Snake(occupied_positions)
     collected_letters = []
@@ -238,12 +240,26 @@ def main():
                         )
                     else:
                         ui.add_status_message("Nothing to cut")
-
+                        
+                # for portal 
                 if check_target_completed(collected_letters):
-                    game_win = True
-                    ui.add_status_message("Sequence Complete! You Win!")
-                    ui.add_status_message("Press R to restart")
+                    if not game_map.portal_active:
+                        portal_spawned = game_map.spawn_portal_far_from_player(
+                            player_snake.body[0],
+                            occupied_positions,
+                        )
 
+                        if portal_spawned:
+                            ui.add_status_message("Sequence complete! Portal opened!")
+                else:
+                    if game_map.portal_active:
+                        game_map.clear_portal()
+                        ui.add_status_message("Portal closed! Sequence is incomplete.")
+
+                if game_map.portal_active and game_map.is_portal(player_snake.body[0]):
+                    game_win = True
+                    ui.add_status_message("You entered the portal! You Win!")
+                    ui.add_status_message("Press R to restart")
         # draw
         screen.fill(BACKGROUND_COLOUR)
         game_map.draw(screen)
