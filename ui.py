@@ -40,15 +40,17 @@ class UI:
         game_over: bool,
         game_win: bool,
         collected_letters: list[str],
+        bullet_count: int,
     ) -> None:
         self.draw_background(screen)
         self.draw_title(screen)
         self.draw_controls(screen)
         self.draw_lives(screen, lives)
+        self.draw_bullets(screen, bullet_count)
         self.draw_target_sequence(screen)
         self.draw_collected_letters(screen, collected_letters)
         self.draw_status_messages(screen)
-        #self.draw_game_status(screen, game_over, game_win)
+        # self.draw_game_status(screen, game_over, game_win)
 
     def draw_background(self, screen) -> None:
         ui_rect = pygame.Rect(UI_X, UI_Y, UI_WIDTH, UI_HEIGHT)
@@ -72,12 +74,16 @@ class UI:
         lives_text = self.font.render(f"Lives: {lives}", True, TEXT_COLOUR)
         screen.blit(lives_text, (UI_X + 20, UI_Y + 170))
 
+    def draw_bullets(self, screen, bullet_count: int) -> None:
+        bullet_text = self.font.render(f"Bullets: {bullet_count}", True, TEXT_COLOUR)
+        screen.blit(bullet_text, (UI_X + 20, UI_Y + 200))
+
     def draw_target_sequence(self, screen) -> None:
         target_text = self.font.render("Target:", True, TEXT_COLOUR)
-        screen.blit(target_text, (UI_X + 20, UI_Y + 220))
+        screen.blit(target_text, (UI_X + 20, UI_Y + 250))
 
         target_value = self.font.render(TARGET_SEQUENCE, True, TEXT_COLOUR)
-        screen.blit(target_value, (UI_X + 20, UI_Y + 250))
+        screen.blit(target_value, (UI_X + 20, UI_Y + 280))
 
     def draw_collected_letters(
         self,
@@ -85,44 +91,20 @@ class UI:
         collected_letters: list[str],
     ) -> None:
         collected_text = self.font.render("Collected:", True, TEXT_COLOUR)
-        screen.blit(collected_text, (UI_X + 20, UI_Y + 300))
+        screen.blit(collected_text, (UI_X + 20, UI_Y + 330))
 
         collected_value = self.font.render(
             "".join(collected_letters),
             True,
             TEXT_COLOUR,
         )
-        screen.blit(collected_value, (UI_X + 20, UI_Y + 330))
+        screen.blit(collected_value, (UI_X + 20, UI_Y + 360))
 
     def draw_status_messages(self, screen) -> None:
         status_text = self.font.render("Status:", True, TEXT_COLOUR)
-        screen.blit(status_text, (UI_X + 20, UI_Y + 390))
+        screen.blit(status_text, (UI_X + 20, UI_Y + 420))
 
         for i in range(len(self.status_messages)):
             message = self.status_messages[i]
             message_text = self.font.render(message, True, TEXT_COLOUR)
-            screen.blit(message_text, (UI_X + 20, UI_Y + 420 + i * 30))
-
-    # def draw_game_status(
-    #     self,
-    #     screen,
-    #     game_over: bool,
-    #     game_win: bool,
-    # ) -> None:
-    #     if game_over:
-    #         game_over_text = self.font.render("Game Over", True, TEXT_COLOUR)
-    #         screen.blit(game_over_text, (UI_X + 20, UI_Y + 520))
-
-    #         restart_text = self.font.render("Press R to restart", True, TEXT_COLOUR)
-    #         screen.blit(restart_text, (UI_X + 20, UI_Y + 550))
-
-    #     if game_win:
-    #         victory_text = self.font.render(
-    #             "Sequence Complete! You Win!",
-    #             True,
-    #             TEXT_COLOUR,
-    #         )
-    #         screen.blit(victory_text, (UI_X + 20, UI_Y + 520))
-
-    #         restart_text = self.font.render("Press R to restart", True, TEXT_COLOUR)
-    #         screen.blit(restart_text, (UI_X + 20, UI_Y + 550))
+            screen.blit(message_text, (UI_X + 20, UI_Y + 450 + i * 30))

@@ -9,8 +9,10 @@ def handle_events(
     game_started: bool,
     game_paused: bool,
     ui,
-) -> tuple[bool, tuple[int, int], bool, bool, bool]:
+) -> tuple[bool, tuple[int, int], bool, bool, bool, bool]:
     restart_request = False
+    # shoot bullet
+    shoot_request = False
     # avoid multiple actions in one frame
     direction_changed = False
     for event in pygame.event.get():
@@ -29,6 +31,15 @@ def handle_events(
                     ui.add_status_message("Game paused")
                 else:
                     ui.add_status_message("Game resumed")
+            # press f to fire a bullet
+            if (
+                game_started == True
+                and not game_over
+                and not game_paused
+                and event.key == pygame.K_f
+            ):
+                shoot_request = True
+
             # game is over then press r to restart the game
             if game_over and event.key == pygame.K_r:
                 restart_request = True
@@ -53,5 +64,11 @@ def handle_events(
             elif event.key == pygame.K_RIGHT and direction != DIRECTIONS["LEFT"]:
                 direction = DIRECTIONS["RIGHT"]
                 direction_changed = True
-
-    return game_running, direction, restart_request, game_started, game_paused
+    return (
+        game_running,
+        direction,
+        restart_request,
+        game_started,
+        game_paused,
+        shoot_request,
+    )

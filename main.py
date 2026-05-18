@@ -16,6 +16,7 @@ from game_map import GameMap
 from events import handle_events
 from item import ItemManager
 from enemy import EnemyManager
+from bullet import BulletManager
 
 
 # reset game
@@ -37,6 +38,7 @@ def reset_game(game_map, ui):
         occupied_positions,
     )
     enemy_manager = EnemyManager(occupied_positions)
+    bullet_manager = BulletManager()
     game_over = False
     game_win = False
     game_started = False
@@ -47,6 +49,7 @@ def reset_game(game_map, ui):
         apple_manager,
         item_manager,
         enemy_manager,
+        bullet_manager,
         collected_letters,
         occupied_positions,
         game_over,
@@ -78,6 +81,7 @@ def main():
         apple_manager,
         item_manager,
         enemy_manager,
+        bullet_manager,
         collected_letters,
         occupied_positions,
         game_over,
@@ -96,6 +100,7 @@ def main():
             restart_request,
             game_started,
             game_paused,
+            shoot_request,
         ) = handle_events(
             game_running,
             player_snake.direction,
@@ -111,6 +116,7 @@ def main():
                 apple_manager,
                 item_manager,
                 enemy_manager,
+                bullet_manager,
                 collected_letters,
                 occupied_positions,
                 game_over,
@@ -120,6 +126,15 @@ def main():
             ) = reset_game(game_map, ui)
 
         if game_started and not game_paused and not game_over and not game_win:
+            
+            next_head = player_snake.get_next_head_pos()
+            # shoot bullet from the next head position
+            if shoot_request:
+                bullet_manager.shoot(
+                    next_head,
+                    player_snake.direction,
+                )
+
             # update apples’ status manager
             apple_manager.update(
                 game_map,
@@ -137,7 +152,8 @@ def main():
                 is_tail_cut_eaten = False
             else:
                 is_tail_cut_eaten = True
-
+            # update bullet status
+            bullet_manager.update()
             # update enemy snake
             enemy_manager.update(
                 game_map,
@@ -240,8 +256,8 @@ def main():
                         )
                     else:
                         ui.add_status_message("Nothing to cut")
-                        
-                # for portal 
+
+                # for portal
                 if check_target_completed(collected_letters):
                     if not game_map.portal_active:
                         portal_spawned = game_map.spawn_portal_far_from_player(
@@ -267,12 +283,14 @@ def main():
         apple_manager.draw(screen, grid_font)
         item_manager.draw(screen, grid_font)
         enemy_manager.draw(screen)
+        bullet_manager.draw(screen)
         ui.draw(
             screen,
             player_snake.lives,
             game_over,
             game_win,
             collected_letters,
+            bullet_manager.bullet_count,
         )
         pygame.display.flip()  # draw all
 
