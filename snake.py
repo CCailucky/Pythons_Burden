@@ -91,6 +91,12 @@ class Snake:
         ):
             self.is_invincible = False
 
+    def handle_bullet_hit(self) -> bool:
+        if self.is_invincible:
+            return False
+        self.lose_life()
+        return True
+
     def lose_life(self) -> None:
         self.lives -= 1
 

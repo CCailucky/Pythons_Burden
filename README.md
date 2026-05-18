@@ -45,6 +45,7 @@ USYD COMP9001 Final Project
 | 33 | Optimized the code. The game now runs at 60 FPS, and shooting feels smoother, more natural, and more responsive. |
 | 34 | Add bullet can destroy apple, tailcut item now |
 | 35 | Add bullet can kill the enemy snake, hit the head or the first segment of the body can kill the snake, hit the rest of the body can cut the body|
+| 36 | Add bullet can hurt player snake and -1 life |
 ## Project Structure
 
 ```text

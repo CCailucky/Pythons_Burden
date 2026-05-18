@@ -22,11 +22,11 @@ class Bullet:
         self.pos = pos
         self.direction = direction
         self.spawn_time = pygame.time.get_ticks()
-        # when spawned, immediately move to the next grid, in order to avoid spawn in the snake's head
         # self.last_move_time = self.spawn_time - BULLET_MOVE_INTERVAL_MS
         self.last_move_time = self.spawn_time
         self.alive = True
-
+        # fix bug: avoid immediately hitting player snake when shooting
+        self.first_move = False
     def quantum_transit(self, position: tuple[int, int]) -> tuple[int, int]:
         x, y = position
 
@@ -57,6 +57,7 @@ class Bullet:
             return
 
         self.pos = next_pos
+        self.first_move = True
 
     def update(self, game_map) -> None:
         current_time = pygame.time.get_ticks()
@@ -115,25 +116,30 @@ class BulletManager:
         apple_manager,
         item_manager,
         enemy_manager,
+        player_snake,
         collected_letters: list[str],
-    ) -> bool:
+    ) -> str | None:
         if apple_manager.handle_apple_hit_by_bullet(
             bullet.pos,
             game_map,
             collected_letters,
         ):
             bullet.alive = False
-            return True
+            return "apple"
 
         if item_manager.handle_tail_cut_hit_by_bullet(bullet.pos):
             bullet.alive = False
-            return True
+            return "item"
 
         if enemy_manager.handle_enemy_hit_by_bullet(bullet.pos):
             bullet.alive = False
-            return True
+            return "enemy"
 
-        return False
+        if bullet.pos in player_snake.body and bullet.first_move:
+            bullet.alive = False
+            return "player"
+
+        return None
 
     def update(
         self,
@@ -141,26 +147,30 @@ class BulletManager:
         apple_manager,
         item_manager,
         enemy_manager,
+        player_snake,
         collected_letters: list[str],
-    ) -> None:
+    ) -> bool:
         alive_bullets = []
+        player_hit_by_bullet = False
 
         for bullet in self.bullets:
             bullet.update(game_map)
 
-            self.handle_bullet_hit_object(
+            hit_type = self.handle_bullet_hit_object(
                 bullet,
                 game_map,
                 apple_manager,
                 item_manager,
                 enemy_manager,
+                player_snake,
                 collected_letters,
             )
-
+            if hit_type == "player":
+                player_hit_by_bullet = True
             if bullet.alive:
                 alive_bullets.append(bullet)
-
         self.bullets = alive_bullets
+        return player_hit_by_bullet
 
     def draw(self, screen) -> None:
         for bullet in self.bullets:

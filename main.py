@@ -144,13 +144,35 @@ def main():
                 bullet_manager.shoot(player_snake, pending_direction, game_map)
 
             # update bullet status every frame
-            bullet_manager.update(
+            is_player_hit_by_bullet = bullet_manager.update(
                 game_map,
                 apple_manager,
                 item_manager,
                 enemy_manager,
+                player_snake,
                 collected_letters,
             )
+            # handle bullet hits player snake
+            if is_player_hit_by_bullet:
+                is_damage_taken = player_snake.handle_bullet_hit()
+
+                if not is_damage_taken:
+                    ui.add_status_message("Bullet blocked by invincibility")
+                else:
+                    ui.add_status_message("Hit by your own bullet! Life -1")
+
+                    if player_snake.is_dead():
+                        game_over = True
+                        ui.add_status_message("Game Over")
+                        ui.add_status_message("Press R to restart")
+                    else:
+                        player_snake.revive()
+                        pending_direction = player_snake.direction
+                        player_snake.start_invincible()
+                        apple_manager.spawn_apples(
+                            game_map,
+                            collected_letters,
+                        )
 
             if current_time - last_game_tick_time >= SNAKE_MOVE_INTERVAL_MS:
                 last_game_tick_time = current_time
