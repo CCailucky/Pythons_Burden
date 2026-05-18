@@ -23,7 +23,8 @@ class Bullet:
         self.direction = direction
         self.spawn_time = pygame.time.get_ticks()
         # when spawned, immediately move to the next grid, in order to avoid spawn in the snake's head
-        self.last_move_time = self.spawn_time - BULLET_MOVE_INTERVAL_MS
+        #self.last_move_time = self.spawn_time - BULLET_MOVE_INTERVAL_MS
+        self.last_move_time = self.spawn_time
         self.alive = True
 
     def quantum_transit(self, position: tuple[int, int]) -> tuple[int, int]:
@@ -64,11 +65,9 @@ class Bullet:
             self.alive = False
             return
 
-        while current_time - self.last_move_time >= BULLET_MOVE_INTERVAL_MS:
+        if current_time - self.last_move_time >= BULLET_MOVE_INTERVAL_MS:
             self.move(game_map)
-            self.last_move_time += BULLET_MOVE_INTERVAL_MS
-            if not self.alive:
-                return
+            self.last_move_time = current_time
 
     def draw(self, screen) -> None:
         x, y = self.pos
@@ -109,11 +108,47 @@ class BulletManager:
 
         self.bullets.append(bullet)
 
-    def update(self, game_map) -> None:
+    def handle_bullet_hit_object(
+        self,
+        bullet,
+        game_map,
+        apple_manager,
+        item_manager,
+        collected_letters: list[str],
+    ) -> bool:
+        if apple_manager.handle_apple_hit_by_bullet(
+            bullet.pos,
+            game_map,
+            collected_letters,
+        ):
+            bullet.alive = False
+            return True
+
+        if item_manager.handle_tail_cut_hit_by_bullet(bullet.pos):
+            bullet.alive = False
+            return True
+
+        return False
+
+    def update(
+        self,
+        game_map,
+        apple_manager,
+        item_manager,
+        collected_letters: list[str],
+    ) -> None:
         alive_bullets = []
 
         for bullet in self.bullets:
             bullet.update(game_map)
+
+            self.handle_bullet_hit_object(
+                bullet,
+                game_map,
+                apple_manager,
+                item_manager,
+                collected_letters,
+            )
 
             if bullet.alive:
                 alive_bullets.append(bullet)

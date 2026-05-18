@@ -142,8 +142,14 @@ def main():
             # shoot bullet from the next position based on pending_direction
             if shoot_request:
                 bullet_manager.shoot(player_snake, pending_direction, game_map)
+                
             # update bullet status
-            bullet_manager.update(game_map)
+            bullet_manager.update(
+                game_map,
+                apple_manager,
+                item_manager,
+                collected_letters,
+            )
 
             if current_time - last_game_tick_time >= SNAKE_MOVE_INTERVAL_MS:
                 last_game_tick_time = current_time

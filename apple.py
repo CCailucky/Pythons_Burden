@@ -261,10 +261,7 @@ class AppleManager:
         return collected_letters
 
     def handle_apple_eaten_by_enemy(
-        self,
-        eaten_apple: Apple,
-        game_map,
-        collected_letters: list[str],
+        self, eaten_apple: Apple, game_map, collected_letters: list[str]
     ) -> None:
         if eaten_apple in self.apples:
             self.apples.remove(eaten_apple)
@@ -274,9 +271,27 @@ class AppleManager:
 
         if eaten_apple.pos in self.occupied_positions:
             self.occupied_positions.remove(eaten_apple.pos)
-
         self.refill_apples(game_map, collected_letters)
 
+    # handle apple hit by bullet
+    def handle_apple_hit_by_bullet(
+        self, pos: tuple[int, int], game_map, collected_letters: list[str]
+    ) -> bool:
+        for apple in self.apples:
+            if apple.pos == pos:
+                self.apples.remove(apple)
+                if apple.pos in self.occupied_positions:
+                    self.occupied_positions.remove(apple.pos)
+                self.refill_apples(game_map, collected_letters)
+                return True
+
+        for golden_apple in self.golden_apples:
+            if golden_apple.pos == pos:
+                self.golden_apples.remove(golden_apple)
+                if golden_apple.pos in self.occupied_positions:
+                    self.occupied_positions.remove(golden_apple.pos)
+                return True
+        return False
 
     # draw all apples
     def draw(self, screen, font) -> None:

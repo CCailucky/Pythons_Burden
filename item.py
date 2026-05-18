@@ -125,10 +125,7 @@ class ItemManager:
         return collected_letters
 
     def handle_tail_cut_eaten_by_enemy(
-        self,
-        eaten_tail_cut_item: TailCutItem,
-        enemy_snake,
-        game_map
+        self, eaten_tail_cut_item: TailCutItem, enemy_snake, game_map
     ) -> None:
         if eaten_tail_cut_item in self.tail_cut_items:
             self.tail_cut_items.remove(eaten_tail_cut_item)
@@ -138,6 +135,18 @@ class ItemManager:
 
         enemy_snake.cut_tail(eaten_tail_cut_item.cut_count)
         # self.spawn_tail_cut(game_map)
+
+    def handle_tail_cut_hit_by_bullet(self, pos: tuple[int, int]) -> bool:
+        for tail_cut_item in self.tail_cut_items:
+            if tail_cut_item.pos == pos:
+                self.tail_cut_items.remove(tail_cut_item)
+
+                if tail_cut_item.pos in self.occupied_positions:
+                    self.occupied_positions.remove(tail_cut_item.pos)
+
+                return True
+
+        return False
 
     def draw(self, screen, font) -> None:
         for tail_cut_item in self.tail_cut_items:
