@@ -41,7 +41,7 @@ class Bullet:
 
         return (x, y)
 
-    def move(self) -> None:
+    def move(self, game_map) -> None:
         move_x, move_y = self.direction
         next_pos = (
             self.pos[0] + move_x,
@@ -49,9 +49,15 @@ class Bullet:
         )
 
         next_pos = self.quantum_transit(next_pos)
+
+        # cant go through the wall
+        if not game_map.is_walkable(next_pos):
+            self.alive = False
+            return
+
         self.pos = next_pos
 
-    def update(self) -> None:
+    def update(self, game_map) -> None:
         current_time = pygame.time.get_ticks()
 
         if current_time - self.spawn_time >= BULLET_LIFETIME_MS:
@@ -59,8 +65,10 @@ class Bullet:
             return
 
         while current_time - self.last_move_time >= BULLET_MOVE_INTERVAL_MS:
-            self.move()
+            self.move(game_map)
             self.last_move_time += BULLET_MOVE_INTERVAL_MS
+            if not self.alive:
+                return
 
     def draw(self, screen) -> None:
         x, y = self.pos
@@ -80,7 +88,7 @@ class BulletManager:
         self.bullet_count = INITIAL_BULLETS
         self.bullets = []
 
-    def shoot(self, player_snake, direction: tuple[int, int]) -> None:
+    def shoot(self, player_snake, direction: tuple[int, int], game_map) -> None:
 
         if self.bullet_count <= 0:
             return
@@ -90,19 +98,22 @@ class BulletManager:
 
         start_pos = player_snake.quantum_transit((head_x + move_x, head_y + move_y))
 
+        self.bullet_count -= 1
+
+        if not game_map.is_walkable(start_pos):
+            return
         bullet = Bullet(
             start_pos,
             direction,
         )
 
         self.bullets.append(bullet)
-        self.bullet_count -= 1
 
-    def update(self) -> None:
+    def update(self, game_map) -> None:
         alive_bullets = []
 
         for bullet in self.bullets:
-            bullet.update()
+            bullet.update(game_map)
 
             if bullet.alive:
                 alive_bullets.append(bullet)

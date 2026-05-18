@@ -41,6 +41,8 @@ USYD COMP9001 Final Project
 | 29 | Add snake invincibility after reviving.(has no effect on self-collision or wall-collision, only applies to enemy snake collision) |
 | 30 | Add enemy snake can eat apple and tailcut item now |
 | 31 | Add exit portal. Now the win condition is: player collects right sequence and enters the portal |
+| 32 | Add bullet system, bullet manager, now bullet move normally and are shown on the screen, but no effect. Press F to fire a bullet|
+| 33 | Optimized the code. The game now runs at 60 FPS, and shooting feels smoother, more natural, and more responsive. |
 ## Project Structure
 
 ```text

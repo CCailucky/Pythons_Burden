@@ -141,9 +141,9 @@ def main():
             current_time = pygame.time.get_ticks()
             # shoot bullet from the next position based on pending_direction
             if shoot_request:
-                bullet_manager.shoot(player_snake, pending_direction)
+                bullet_manager.shoot(player_snake, pending_direction, game_map)
             # update bullet status
-            bullet_manager.update()
+            bullet_manager.update(game_map)
 
             if current_time - last_game_tick_time >= SNAKE_MOVE_INTERVAL_MS:
                 last_game_tick_time = current_time
