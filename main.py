@@ -137,7 +137,12 @@ def main():
                 is_tail_cut_eaten = True
 
             # update enemy snake
-            enemy_manager.update(game_map)
+            enemy_manager.update(
+                game_map,
+                apple_manager,
+                item_manager,
+                collected_letters,
+            )
             enemy_manager.handle_enemy_drops(
                 game_map,
                 apple_manager,
@@ -223,7 +228,8 @@ def main():
                         player_snake,
                         collected_letters,
                     )
-                    item_manager.spawn_tail_cut(game_map)
+                    # respawn a tail cut item if got eaten
+                    # item_manager.spawn_tail_cut(game_map)
                     removed_count = old_length - len(collected_letters)
 
                     if removed_count > 0:

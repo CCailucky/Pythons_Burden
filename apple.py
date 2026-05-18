@@ -260,6 +260,24 @@ class AppleManager:
 
         return collected_letters
 
+    def handle_apple_eaten_by_enemy(
+        self,
+        eaten_apple: Apple,
+        game_map,
+        collected_letters: list[str],
+    ) -> None:
+        if eaten_apple in self.apples:
+            self.apples.remove(eaten_apple)
+
+        if eaten_apple in self.golden_apples:
+            self.golden_apples.remove(eaten_apple)
+
+        if eaten_apple.pos in self.occupied_positions:
+            self.occupied_positions.remove(eaten_apple.pos)
+
+        self.refill_apples(game_map, collected_letters)
+
+
     # draw all apples
     def draw(self, screen, font) -> None:
         for apple in self.apples:

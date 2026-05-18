@@ -38,7 +38,8 @@ USYD COMP9001 Final Project
 | 26 | Add enemy system, enemy snake, and enemy manager |
 | 27 | Add collision judgment with enemy snake |
 | 28 | Add drops when enemy snake dies: golden apple and TailCut item |
-
+| 29 | Add snake invincibility after reviving.(has no effect on self-collision or wall-collision, only applies to enemy snake collision) |
+| 30 | Add enemy snake can eat apple and tailcut item now |
 ## Project Structure
 
 ```text

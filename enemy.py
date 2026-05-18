@@ -102,50 +102,66 @@ class EnemySnake:
             return DIRECTIONS["LEFT"]
         return DIRECTIONS["UP"]
 
-    def can_move_to(self, game_map, pos: tuple[int, int]) -> bool:
-        # if not game_map.is_inside_map(pos):
-        #     return False
+    def can_move_to(
+        self,
+        game_map,
+        pos: tuple[int, int],
+        apple_manager=None,
+        item_manager=None,
+    ) -> bool:
         if not game_map.is_walkable(pos):
             return False
         if pos in self.occupied_positions:
+            if apple_manager != None and apple_manager.get_eaten_apple(pos) != None:
+                return True
+            if item_manager != None and item_manager.get_eaten_tail_cut(pos) != None:
+                return True
             return False
         return True
 
     # main move logic
-    def choose_direction(self, game_map) -> bool:
+
+    def choose_direction(
+        self,
+        game_map,
+        apple_manager,
+        item_manager,
+    ) -> bool:
         forward = self.direction
         left = self.turn_left(self.direction)
         right = self.turn_right(self.direction)
+
         forward_pos = self.get_next_head_pos(forward)
+
         # First priority: moving forward
-        if self.can_move_to(game_map, forward_pos):
+        if self.can_move_to(game_map, forward_pos, apple_manager, item_manager):
             self.direction = forward
             return True
-        # Second priority:
-        # If cant move forward, randomly choose to try left or right.
+
+        # Second priority
+        # If cannot move forward, randomly choose to try left or right.
         side_directions = [left, right]
         random.shuffle(side_directions)
+
         first_direction = side_directions[0]
         second_direction = side_directions[1]
 
         first_pos = self.get_next_head_pos(first_direction)
         second_pos = self.get_next_head_pos(second_direction)
-        if self.can_move_to(game_map, first_pos):
+
+        if self.can_move_to(game_map, first_pos, apple_manager, item_manager):
             self.direction = first_direction
             self.steps_remaining = random.randint(ENEMY_MIN_STEPS, ENEMY_MAX_STEPS)
             return True
 
-        if self.can_move_to(game_map, second_pos):
+        if self.can_move_to(game_map, second_pos, apple_manager, item_manager):
             self.direction = second_direction
             self.steps_remaining = random.randint(ENEMY_MIN_STEPS, ENEMY_MAX_STEPS)
             return True
 
         return False
 
-    def move(self, game_map) -> None:
-        if not self.alive:
-            return
-
+    def update_direction_if_needed(self) -> None:
         if self.steps_remaining <= 0:
             possible_directions = [
                 self.direction,
@@ -154,26 +170,116 @@ class EnemySnake:
             ]
 
             self.direction = random.choice(possible_directions)
-            self.steps_remaining = random.randint(ENEMY_MIN_STEPS, ENEMY_MAX_STEPS)
+            self.steps_remaining = random.randint(
+                ENEMY_MIN_STEPS,
+                ENEMY_MAX_STEPS,
+            )
 
-        can_move = self.choose_direction(game_map)
+    def get_eaten_objects(
+        self,
+        next_head: tuple[int, int],
+        apple_manager,
+        item_manager,
+    ):
+        eaten_apple = apple_manager.get_eaten_apple(next_head)
+        eaten_tail_cut_item = item_manager.get_eaten_tail_cut(next_head)
 
-        # if cant go forward,turn left or right, the snake will die
-        if not can_move:
-            self.die()
-            return
-        # move
-        next_head = self.get_next_head_pos(self.direction)
+        return eaten_apple, eaten_tail_cut_item
 
+    def handle_eaten_objects(
+        self,
+        eaten_apple,
+        eaten_tail_cut_item,
+        game_map,
+        apple_manager,
+        item_manager,
+        collected_letters: list[str],
+    ) -> None:
+        if eaten_apple != None:
+            apple_manager.handle_apple_eaten_by_enemy(
+                eaten_apple,
+                game_map,
+                collected_letters,
+            )
+
+        if eaten_tail_cut_item != None:
+            item_manager.handle_tail_cut_eaten_by_enemy(
+                eaten_tail_cut_item,
+                self,
+                game_map,
+            )
+
+    # true move
+    def apply_move(
+        self,
+        next_head: tuple[int, int],
+        should_grow: bool,
+    ) -> None:
         self.body.insert(0, next_head)
         self.occupied_positions.append(next_head)
 
-        removed_tail = self.body.pop()
+        if not should_grow:
+            removed_tail = self.body.pop()
 
-        if removed_tail in self.occupied_positions:
-            self.occupied_positions.remove(removed_tail)
+            if removed_tail in self.occupied_positions:
+                self.occupied_positions.remove(removed_tail)
+
+    def move(
+        self,
+        game_map,
+        apple_manager,
+        item_manager,
+        collected_letters: list[str],
+    ) -> None:
+        if not self.alive:
+            return
+
+        self.update_direction_if_needed()
+
+        can_move = self.choose_direction(
+            game_map,
+            apple_manager,
+            item_manager,
+        )
+
+        if not can_move:
+            self.die()
+            return
+
+        next_head = self.get_next_head_pos(self.direction)
+
+        eaten_apple, eaten_tail_cut_item = self.get_eaten_objects(
+            next_head,
+            apple_manager,
+            item_manager,
+        )
+
+        should_grow = eaten_apple != None
+
+        # true move
+        self.apply_move(
+            next_head,
+            should_grow,
+        )
+
+        self.handle_eaten_objects(
+            eaten_apple,
+            eaten_tail_cut_item,
+            game_map,
+            apple_manager,
+            item_manager,
+            collected_letters,
+        )
 
         self.steps_remaining -= 1
+
+    def cut_tail(self, cut_count: int) -> None:
+        for i in range(cut_count):
+            if len(self.body) > 1:
+                removed_tail = self.body.pop()
+
+                if removed_tail in self.occupied_positions:
+                    self.occupied_positions.remove(removed_tail)
 
     def die(self) -> None:
         self.alive = False
@@ -249,7 +355,14 @@ class EnemyManager:
         return False
 
 
-    def update(self, game_map) -> None:
+
+    def update(
+        self,
+        game_map,
+        apple_manager,
+        item_manager,
+        collected_letters: list[str],
+    ) -> None:
         current_time = pygame.time.get_ticks()
         self.dead_enemy_positions = []
 
@@ -260,7 +373,12 @@ class EnemyManager:
         alive_enemies = []
 
         for enemy_snake in self.enemy_snakes:
-            enemy_snake.move(game_map)
+            enemy_snake.move(
+                game_map,
+                apple_manager,
+                item_manager,
+                collected_letters,
+            )
 
             if enemy_snake.alive:
                 alive_enemies.append(enemy_snake)

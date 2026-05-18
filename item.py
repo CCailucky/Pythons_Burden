@@ -124,6 +124,21 @@ class ItemManager:
 
         return collected_letters
 
+    def handle_tail_cut_eaten_by_enemy(
+        self,
+        eaten_tail_cut_item: TailCutItem,
+        enemy_snake,
+        game_map
+    ) -> None:
+        if eaten_tail_cut_item in self.tail_cut_items:
+            self.tail_cut_items.remove(eaten_tail_cut_item)
+
+        if eaten_tail_cut_item.pos in self.occupied_positions:
+            self.occupied_positions.remove(eaten_tail_cut_item.pos)
+
+        enemy_snake.cut_tail(eaten_tail_cut_item.cut_count)
+        # self.spawn_tail_cut(game_map)
+
     def draw(self, screen, font) -> None:
         for tail_cut_item in self.tail_cut_items:
             tail_cut_item.draw(screen, font)
