@@ -22,7 +22,8 @@ class Bullet:
         self.pos = pos
         self.direction = direction
         self.spawn_time = pygame.time.get_ticks()
-        self.last_move_time = self.spawn_time - BULLET_MOVE_INTERVAL_MS # when spawned, immediately move to the next grid, in order to avoid spawn in the snake's head
+        # when spawned, immediately move to the next grid, in order to avoid spawn in the snake's head
+        self.last_move_time = self.spawn_time - BULLET_MOVE_INTERVAL_MS
         self.alive = True
 
     def quantum_transit(self, position: tuple[int, int]) -> tuple[int, int]:
@@ -79,13 +80,15 @@ class BulletManager:
         self.bullet_count = INITIAL_BULLETS
         self.bullets = []
 
-    def shoot(
-        self,
-        start_pos: tuple[int, int],
-        direction: tuple[int, int],
-    ) -> None:
+    def shoot(self, player_snake, direction: tuple[int, int]) -> None:
+
         if self.bullet_count <= 0:
             return
+
+        head_x, head_y = player_snake.body[0]
+        move_x, move_y = direction
+
+        start_pos = player_snake.quantum_transit((head_x + move_x, head_y + move_y))
 
         bullet = Bullet(
             start_pos,
