@@ -10,6 +10,7 @@ from settings import (
     DIRECTIONS,
     ENEMY_SNAKE_COLOUR,
     ENEMY_INITIAL_LENGTH,
+    ENEMY_MIN_LENGTH,
     MAX_ENEMY_SNAKES,
     ENEMY_SPAWN_INTERVAL_MS,
     ENEMY_MIN_STEPS,
@@ -275,11 +276,19 @@ class EnemySnake:
 
     def cut_tail(self, cut_count: int) -> None:
         for i in range(cut_count):
-            if len(self.body) > 1:
+            if len(self.body) > ENEMY_MIN_LENGTH:
                 removed_tail = self.body.pop()
 
                 if removed_tail in self.occupied_positions:
                     self.occupied_positions.remove(removed_tail)
+
+    def cut_body_by_bullet(self, hit_index: int) -> None:
+        removed_segments = self.body[hit_index:]
+        for segment in removed_segments:
+            if segment in self.occupied_positions:
+                self.occupied_positions.remove(segment)
+
+        self.body = self.body[:hit_index]
 
     def die(self) -> None:
         self.alive = False
@@ -329,6 +338,20 @@ class EnemyManager:
                 return True
         return False
 
+    def handle_enemy_hit_by_bullet(self, pos: tuple[int, int]) -> bool:
+        for enemy_snake in self.enemy_snakes:
+            if pos in enemy_snake.body:
+                hit_index = enemy_snake.body.index(pos)
+
+                if hit_index <= 1:
+                    enemy_snake.die()
+                else:
+                    enemy_snake.cut_body_by_bullet(hit_index)
+
+                return True
+
+        return False
+
     def handle_enemy_drops(
         self,
         game_map,
@@ -353,8 +376,6 @@ class EnemyManager:
                 if segment in enemy_snake.body:
                     return True
         return False
-
-
 
     def update(
         self,

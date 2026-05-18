@@ -23,7 +23,7 @@ class Bullet:
         self.direction = direction
         self.spawn_time = pygame.time.get_ticks()
         # when spawned, immediately move to the next grid, in order to avoid spawn in the snake's head
-        #self.last_move_time = self.spawn_time - BULLET_MOVE_INTERVAL_MS
+        # self.last_move_time = self.spawn_time - BULLET_MOVE_INTERVAL_MS
         self.last_move_time = self.spawn_time
         self.alive = True
 
@@ -114,6 +114,7 @@ class BulletManager:
         game_map,
         apple_manager,
         item_manager,
+        enemy_manager,
         collected_letters: list[str],
     ) -> bool:
         if apple_manager.handle_apple_hit_by_bullet(
@@ -128,6 +129,10 @@ class BulletManager:
             bullet.alive = False
             return True
 
+        if enemy_manager.handle_enemy_hit_by_bullet(bullet.pos):
+            bullet.alive = False
+            return True
+
         return False
 
     def update(
@@ -135,6 +140,7 @@ class BulletManager:
         game_map,
         apple_manager,
         item_manager,
+        enemy_manager,
         collected_letters: list[str],
     ) -> None:
         alive_bullets = []
@@ -147,6 +153,7 @@ class BulletManager:
                 game_map,
                 apple_manager,
                 item_manager,
+                enemy_manager,
                 collected_letters,
             )
 

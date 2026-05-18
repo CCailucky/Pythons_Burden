@@ -142,12 +142,13 @@ def main():
             # shoot bullet from the next position based on pending_direction
             if shoot_request:
                 bullet_manager.shoot(player_snake, pending_direction, game_map)
-                
-            # update bullet status
+
+            # update bullet status every frame
             bullet_manager.update(
                 game_map,
                 apple_manager,
                 item_manager,
+                enemy_manager,
                 collected_letters,
             )
 
