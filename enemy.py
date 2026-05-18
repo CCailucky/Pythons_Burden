@@ -9,7 +9,8 @@ from settings import (
     MAP_Y,
     DIRECTIONS,
     ENEMY_SNAKE_COLOUR,
-    ENEMY_INITIAL_LENGTH,
+    ENEMY_MIN_INITIAL_LENGTH,
+    ENEMY_MAX_INITIAL_LENGTH,
     ENEMY_MIN_LENGTH,
     MAX_ENEMY_SNAKES,
     ENEMY_SPAWN_INTERVAL_MS,
@@ -44,7 +45,11 @@ class EnemySnake:
             body = []
             # body spawn depends on the head direction
             # direction:right, body will spawn on the left
-            for i in range(ENEMY_INITIAL_LENGTH):
+            enemy_length = random.randint(
+                ENEMY_MIN_INITIAL_LENGTH,
+                ENEMY_MAX_INITIAL_LENGTH,
+            )
+            for i in range(enemy_length):
                 x = head[0] - move_x * i
                 y = head[1] - move_y * i
                 body.append((x, y))
