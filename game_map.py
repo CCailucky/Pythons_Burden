@@ -10,6 +10,7 @@ from settings import (
     MAP_COLOUR,
     WALL_COLOUR,
     PORTAL_COLOUR,
+    INITIAL_SNAKE_BODY,
 )
 
 EMPTY = "empty"
@@ -25,6 +26,9 @@ class GameMap:
         self.portal_positions = []
         self.portal_active = False
         self.create_walls()
+        self.reachable_spawn_positions = self.get_reachable_positions(
+            INITIAL_SNAKE_BODY[0]
+        )
 
     def create_empty_grid(self) -> list[list[str]]:
         grid = []
@@ -186,6 +190,7 @@ class GameMap:
                     return False
 
         return True
+
     # spawn a portal far away from player
     def spawn_portal_far_from_player(
         self,
@@ -232,3 +237,19 @@ class GameMap:
 
     def is_portal(self, pos: tuple[int, int]) -> bool:
         return self.get_grid(pos) == PORTAL
+
+    # quantum_transit func is used for BFS
+    def quantum_transit(self, position: tuple[int, int]) -> tuple[int, int]:
+        x, y = position
+
+        if x < 0:
+            x = GRID_WIDTH - 1
+        elif x >= GRID_WIDTH:
+            x = 0
+
+        if y < 0:
+            y = GRID_HEIGHT - 1
+        elif y >= GRID_HEIGHT:
+            y = 0
+
+        return (x, y)

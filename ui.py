@@ -16,6 +16,7 @@ from settings import (
     UI_COLOUR,
     TEXT_COLOUR,
     TARGET_SEQUENCE,
+    MAX_MSGS,
 )
 
 
@@ -26,7 +27,7 @@ class UI:
 
     def add_status_message(self, message: str) -> None:
         self.status_messages.append(message)
-        if len(self.status_messages) > 5:
+        if len(self.status_messages) > MAX_MSGS:
             self.status_messages.pop(0)
 
     def reset_status_messages(self) -> None:

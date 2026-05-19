@@ -161,19 +161,23 @@ class BulletManager:
         for bullet in self.bullets:
             bullet.update(game_map)
 
-            hit_type = self.handle_bullet_hit_object(
-                bullet,
-                game_map,
-                apple_manager,
-                item_manager,
-                enemy_manager,
-                player_snake,
-                collected_letters,
-            )
+            hit_type = None
+            if bullet.alive:
+                hit_type = self.handle_bullet_hit_object(
+                    bullet,
+                    game_map,
+                    apple_manager,
+                    item_manager,
+                    enemy_manager,
+                    player_snake,
+                    collected_letters,
+                )
+
             if hit_type == "player":
                 player_hit_by_bullet = True
             if bullet.alive:
                 alive_bullets.append(bullet)
+                
         self.bullets = alive_bullets
         return player_hit_by_bullet
 
