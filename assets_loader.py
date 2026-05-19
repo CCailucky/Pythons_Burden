@@ -7,6 +7,7 @@ from settings import GRID_SIZE
 IMAGE_CACHE = {}
 
 
+# load grid image
 def load_grid_image(relative_path: str) -> pygame.Surface | None:
     # base directory: Python's Burden/
     base_dir = Path(__file__).resolve().parent
@@ -23,17 +24,37 @@ def load_grid_image(relative_path: str) -> pygame.Surface | None:
 
     return IMAGE_CACHE[relative_path]
 
+
+# load image in any size
+def load_image(relative_path: str, size: tuple[int, int]) -> pygame.Surface | None:
+    base_dir = Path(__file__).resolve().parent
+    image_path = base_dir / relative_path
+
+    if not image_path.exists():
+        print(f"Missing image: {image_path}")
+        return None
+
+    cache_key = (relative_path, size)
+
+    if cache_key not in IMAGE_CACHE:
+        image = pygame.image.load(str(image_path)).convert_alpha()
+        image = pygame.transform.scale(image, size)
+        IMAGE_CACHE[cache_key] = image
+
+    return IMAGE_CACHE[cache_key]
+
+
 def rotate_snake_image_by_direction(
     image: pygame.Surface,
     direction: tuple[int, int],
 ) -> pygame.Surface:
-    if direction == (1, 0):      # right
+    if direction == (1, 0):  # right
         return image
-    if direction == (0, -1):     # up
+    if direction == (0, -1):  # up
         return pygame.transform.rotate(image, 90)
-    if direction == (-1, 0):     # left
+    if direction == (-1, 0):  # left
         return pygame.transform.rotate(image, 180)
-    if direction == (0, 1):      # down
+    if direction == (0, 1):  # down
         return pygame.transform.rotate(image, -90)
 
     return image
@@ -67,16 +88,16 @@ def rotate_bullet_image_by_direction(
     if image is None:
         return None
 
-    if direction == (0, -1):     # up
+    if direction == (0, -1):  # up
         return image
 
-    if direction == (1, 0):      # right
+    if direction == (1, 0):  # right
         return pygame.transform.rotate(image, -90)
 
-    if direction == (0, 1):      # down
+    if direction == (0, 1):  # down
         return pygame.transform.rotate(image, 180)
 
-    if direction == (-1, 0):     # left
+    if direction == (-1, 0):  # left
         return pygame.transform.rotate(image, 90)
 
     return image

@@ -33,7 +33,7 @@ class Apple:
         self.image = load_grid_image(f"assets/images/apples/{self.letter}.png")
         # fallback image, used when a specific letter image is missing
         if self.image is None:
-            self.image = load_grid_image("assets/images/apples/apple.png")
+            self.image = load_grid_image("assets/images/apples/apple_question.png")
 
     # single apple
     def spawn_and_get_apple_position(

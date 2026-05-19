@@ -49,6 +49,8 @@ USYD COMP9001 Final Project
 | 37 | Add bullet supply item, add random amount of the bullet |
 | 38 | optimize the spawn, use BFS to check the whether the grid is reachable |
 | 39 | Add assets of floor tiles and wall tiles |
+| 40 | Add assets of snake, enemy snake, letters, golden letter, tailcut, bulletsupply |
+| 40 | Add assets of portal, apple_question, image loader of specific size |
 ## Project Structure
 
 ```text

@@ -13,7 +13,7 @@ from settings import (
     PORTAL_COLOUR,
     INITIAL_SNAKE_BODY,
 )
-from assets_loader import load_grid_image
+from assets_loader import load_grid_image, load_image
 
 EMPTY = "empty"
 WALL = "wall"
@@ -34,6 +34,9 @@ class GameMap:
         # assets
         self.floor_tile_image = load_grid_image("assets/images/tiles/floor_tile16.png")
         self.wall_tile_image = load_grid_image("assets/images/tiles/wall_tile16.png")
+        self.portal_image = load_image(
+            "assets/images/portal/portal.png", (GRID_SIZE * 3, GRID_SIZE * 3)
+        )
 
     def create_empty_grid(self) -> list[list[str]]:
         grid = []
@@ -113,7 +116,6 @@ class GameMap:
                 if row[x] == "#":
                     self.set_grid((x, y), WALL)
 
-
     def draw(self, screen) -> None:
         map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)
         pygame.draw.rect(screen, MAP_COLOUR, map_rect)
@@ -148,10 +150,41 @@ class GameMap:
                     else:
                         pygame.draw.rect(screen, WALL_COLOUR, cell_rect)
 
-                # Draw portal above the floor for now.
+                # Draw floor firstly, then draw portal on top of floor if it's a portal cell.
                 if cell_type == PORTAL:
-                    pygame.draw.rect(screen, PORTAL_COLOUR, cell_rect)
+                    if self.floor_tile_image is not None:
+                        screen.blit(self.floor_tile_image, draw_pos)
+                    else:
+                        pygame.draw.rect(screen, MAP_COLOUR, cell_rect)
+        self.draw_portal(screen)
+        
+    def draw_portal(self, screen) -> None:
+        if not self.portal_active:
+            return
+        if len(self.portal_positions) == 0:
+            return
 
+        portal_x = min(pos[0] for pos in self.portal_positions)
+        portal_y = min(pos[1] for pos in self.portal_positions)
+
+        draw_pos = (
+            MAP_X + portal_x * GRID_SIZE,
+            MAP_Y + portal_y * GRID_SIZE,
+        )
+
+        if self.portal_image is not None:
+            screen.blit(self.portal_image, draw_pos)
+            return
+
+        # fallback: old 3x3 rect portal
+        for x, y in self.portal_positions:
+            rect = pygame.Rect(
+                MAP_X + x * GRID_SIZE,
+                MAP_Y + y * GRID_SIZE,
+                GRID_SIZE,
+                GRID_SIZE,
+            )
+            pygame.draw.rect(screen, PORTAL_COLOUR, rect)
     def is_inside_map(self, pos: tuple[int, int]) -> bool:
         x, y = pos
 
