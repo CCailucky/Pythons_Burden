@@ -79,9 +79,8 @@ def main():
     # game map
     game_map = GameMap()
     # font
-    ui_font = pygame.font.Font(None, 28)
     grid_font = pygame.font.Font(None, 26)
-    ui = UI(ui_font)
+    ui = UI()
     # initialization
     (
         player_snake,
