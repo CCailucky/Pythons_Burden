@@ -1,4 +1,5 @@
 import pygame
+from pathlib import Path
 from settings import (
     GRID_WIDTH,
     GRID_HEIGHT,
@@ -29,6 +30,9 @@ class GameMap:
         self.reachable_spawn_positions = self.get_reachable_positions(
             INITIAL_SNAKE_BODY[0]
         )
+        # assets
+        self.floor_tile_image = self.load_tile_image("floor_tile.png")
+        self.wall_tile_image = self.load_tile_image("wall_tile.png")
 
     def create_empty_grid(self) -> list[list[str]]:
         grid = []
@@ -108,6 +112,19 @@ class GameMap:
                 if row[x] == "#":
                     self.set_grid((x, y), WALL)
 
+    # load tiles
+    def load_tile_image(self, file_name: str) -> pygame.Surface | None:
+        asset_path = Path(__file__).parent / "assets" / "images" / "tiles" / file_name
+
+        if not asset_path.exists():
+            print(f"Missing tile image: {asset_path}")
+            return None
+
+        image = pygame.image.load(str(asset_path)).convert_alpha()
+        image = pygame.transform.scale(image, (GRID_SIZE, GRID_SIZE))
+
+        return image
+
     def draw(self, screen) -> None:
         map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)
         pygame.draw.rect(screen, MAP_COLOUR, map_rect)
@@ -116,23 +133,35 @@ class GameMap:
             for x in range(GRID_WIDTH):
                 cell_type = self.grid[y][x]
 
-                if cell_type == WALL:
-                    wall_rect = pygame.Rect(
-                        MAP_X + x * GRID_SIZE,
-                        MAP_Y + y * GRID_SIZE,
-                        GRID_SIZE,
-                        GRID_SIZE,
-                    )
-                    pygame.draw.rect(screen, WALL_COLOUR, wall_rect)
+                draw_pos = (
+                    MAP_X + x * GRID_SIZE,
+                    MAP_Y + y * GRID_SIZE,
+                )
 
+                cell_rect = pygame.Rect(
+                    draw_pos[0],
+                    draw_pos[1],
+                    GRID_SIZE,
+                    GRID_SIZE,
+                )
+
+                # Draw floor first for all non-wall cells.
+                if cell_type != WALL:
+                    if self.floor_tile_image is not None:
+                        screen.blit(self.floor_tile_image, draw_pos)
+                    else:
+                        pygame.draw.rect(screen, MAP_COLOUR, cell_rect)
+
+                # Draw wall tile.
+                if cell_type == WALL:
+                    if self.wall_tile_image is not None:
+                        screen.blit(self.wall_tile_image, draw_pos)
+                    else:
+                        pygame.draw.rect(screen, WALL_COLOUR, cell_rect)
+
+                # Draw portal above the floor for now.
                 if cell_type == PORTAL:
-                    portal_rect = pygame.Rect(
-                        MAP_X + x * GRID_SIZE,
-                        MAP_Y + y * GRID_SIZE,
-                        GRID_SIZE,
-                        GRID_SIZE,
-                    )
-                    pygame.draw.rect(screen, PORTAL_COLOUR, portal_rect)
+                    pygame.draw.rect(screen, PORTAL_COLOUR, cell_rect)
 
     def is_inside_map(self, pos: tuple[int, int]) -> bool:
         x, y = pos
