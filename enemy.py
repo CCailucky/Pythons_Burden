@@ -59,10 +59,9 @@ class EnemySnake:
                 if not game_map.is_inside_map(segment):
                     valid_body = False
 
-                elif not game_map.is_walkable(segment):
-                    valid_body = False
-
-                elif segment in self.occupied_positions:
+                elif not game_map.is_available_for_spawn(
+                    segment, self.occupied_positions
+                ):
                     valid_body = False
             # if valid, spawn
             if valid_body:

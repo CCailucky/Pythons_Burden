@@ -47,7 +47,7 @@ USYD COMP9001 Final Project
 | 35 | Add bullet can kill the enemy snake, hit the head or the first segment of the body can kill the snake, hit the rest of the body can cut the body|
 | 36 | Add bullet can hurt player snake and -1 life |
 | 37 | Add bullet supply item, add random amount of the bullet |
-
+| 38 | optimize the spawn, use BFS to check the whether the grid is reachable |
 ## Project Structure
 
 ```text

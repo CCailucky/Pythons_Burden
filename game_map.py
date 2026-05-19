@@ -154,11 +154,13 @@ class GameMap:
         return cell_type in [EMPTY, PORTAL, EXIT]
 
     def is_available_for_spawn(
-        self,
-        pos: tuple[int, int],
-        occupied_positions: list[tuple[int, int]],
+        self, pos: tuple[int, int], occupied_positions: list[tuple[int, int]]
     ) -> bool:
-        return self.is_walkable(pos) and pos not in occupied_positions
+        return (
+            self.get_grid(pos) == EMPTY
+            and pos in self.reachable_spawn_positions
+            and pos not in occupied_positions
+        )
 
     # for reset / restart
     def clear_portal(self) -> None:
@@ -253,3 +255,37 @@ class GameMap:
             y = 0
 
         return (x, y)
+
+    # BFS to get all reachable positions from a start position
+    def get_reachable_positions(
+        self, start_pos: tuple[int, int]
+    ) -> set[tuple[int, int]]:
+        reachable_positions = set()
+        positions_to_check = [start_pos]
+
+        while len(positions_to_check) > 0:
+
+            # like queue pop
+            current_pos = positions_to_check.pop(0)
+            # already in the set, no need to check again
+            if current_pos in reachable_positions:
+                continue
+            # not walkable, skip
+            if not self.is_walkable(current_pos):
+                continue
+
+            reachable_positions.add(current_pos)
+
+            x, y = current_pos
+            neighbour_positions = [
+                (x + 1, y),
+                (x - 1, y),
+                (x, y + 1),
+                (x, y - 1),
+            ]
+
+            for neighbour_pos in neighbour_positions:
+                neighbour_pos = self.quantum_transit(neighbour_pos)
+                if neighbour_pos not in reachable_positions:
+                    positions_to_check.append(neighbour_pos)
+        return reachable_positions
