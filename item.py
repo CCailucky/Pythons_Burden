@@ -15,7 +15,7 @@ from settings import (
     BULLET_SUPPLY_SPAWN_INTERVAL_MS,
     TEXT_COLOUR,
 )
-
+from assets_loader import load_grid_image
 
 class TailCutItem:
     def __init__(
@@ -30,7 +30,8 @@ class TailCutItem:
         else:
             self.pos = pos
         self.cut_count = random.randint(1, 3)
-
+        self.image = load_grid_image("assets/images/items/tailcut.png")
+        
     def spawn_and_get_position(
         self,
         game_map,
@@ -48,16 +49,26 @@ class TailCutItem:
     def draw(self, screen, font) -> None:
         x, y = self.pos
 
-        rect = pygame.Rect(
+        draw_pos = (
             MAP_X + x * GRID_SIZE,
             MAP_Y + y * GRID_SIZE,
+        )
+
+        rect = pygame.Rect(
+            draw_pos[0],
+            draw_pos[1],
             GRID_SIZE,
             GRID_SIZE,
         )
 
+        if self.image is not None:
+            screen.blit(self.image, draw_pos)
+            return
+
+        # fallback: old rectangle style
         pygame.draw.rect(screen, ITEM_TAIL_CUT_COLOUR, rect)
 
-        text = font.render("C", True, TEXT_COLOUR)
+        text = font.render("T", True, TEXT_COLOUR)
         text_rect = text.get_rect(center=rect.center)
         screen.blit(text, text_rect)
 
@@ -76,6 +87,7 @@ class BulletSupplyItem:
             BULLET_SUPPLY_MIN_AMOUNT,
             BULLET_SUPPLY_MAX_AMOUNT,
         )
+        self.image = load_grid_image("assets/images/items/bulletsupply.png")
 
     def spawn_and_get_position(
         self,
@@ -94,15 +106,23 @@ class BulletSupplyItem:
     def draw(self, screen, font) -> None:
         x, y = self.pos
 
-        rect = pygame.Rect(
+        draw_pos = (
             MAP_X + x * GRID_SIZE,
             MAP_Y + y * GRID_SIZE,
+        )
+
+        rect = pygame.Rect(
+            draw_pos[0],
+            draw_pos[1],
             GRID_SIZE,
             GRID_SIZE,
         )
 
+        if self.image is not None:
+            screen.blit(self.image, draw_pos)
+            return
+        # fallback: old rectangle style
         pygame.draw.rect(screen, BULLET_SUPPLY_COLOUR, rect)
-
         text = font.render("B", True, TEXT_COLOUR)
         text_rect = text.get_rect(center=rect.center)
         screen.blit(text, text_rect)

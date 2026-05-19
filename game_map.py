@@ -13,6 +13,7 @@ from settings import (
     PORTAL_COLOUR,
     INITIAL_SNAKE_BODY,
 )
+from assets_loader import load_grid_image
 
 EMPTY = "empty"
 WALL = "wall"
@@ -31,8 +32,8 @@ class GameMap:
             INITIAL_SNAKE_BODY[0]
         )
         # assets
-        self.floor_tile_image = self.load_tile_image("floor_tile.png")
-        self.wall_tile_image = self.load_tile_image("wall_tile.png")
+        self.floor_tile_image = load_grid_image("assets/images/tiles/floor_tile16.png")
+        self.wall_tile_image = load_grid_image("assets/images/tiles/wall_tile16.png")
 
     def create_empty_grid(self) -> list[list[str]]:
         grid = []
@@ -112,18 +113,6 @@ class GameMap:
                 if row[x] == "#":
                     self.set_grid((x, y), WALL)
 
-    # load tiles
-    def load_tile_image(self, file_name: str) -> pygame.Surface | None:
-        asset_path = Path(__file__).parent / "assets" / "images" / "tiles" / file_name
-
-        if not asset_path.exists():
-            print(f"Missing tile image: {asset_path}")
-            return None
-
-        image = pygame.image.load(str(asset_path)).convert_alpha()
-        image = pygame.transform.scale(image, (GRID_SIZE, GRID_SIZE))
-
-        return image
 
     def draw(self, screen) -> None:
         map_rect = pygame.Rect(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)

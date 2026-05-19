@@ -11,6 +11,10 @@ from settings import (
     BULLET_LIFETIME_MS,
     BULLET_MOVE_INTERVAL_MS,
 )
+from assets_loader import (
+    load_grid_image,
+    rotate_bullet_image_by_direction,
+)
 
 
 class Bullet:
@@ -71,16 +75,32 @@ class Bullet:
             self.move(game_map)
             self.last_move_time = current_time
 
-    def draw(self, screen) -> None:
+    def draw(
+        self,
+        screen,
+        bullet_image: pygame.Surface | None,
+    ) -> None:
         x, y = self.pos
-
-        rect = pygame.Rect(
+        draw_pos = (
             MAP_X + x * GRID_SIZE,
             MAP_Y + y * GRID_SIZE,
+        )
+        rect = pygame.Rect(
+            draw_pos[0],
+            draw_pos[1],
             GRID_SIZE,
             GRID_SIZE,
         )
+        if bullet_image is not None:
+            rotated_image = rotate_bullet_image_by_direction(
+                bullet_image, self.direction
+            )
 
+            if rotated_image is not None:
+                screen.blit(rotated_image, draw_pos)
+                return
+
+        # fallback: old rectangle style
         pygame.draw.rect(screen, BULLET_COLOUR, rect)
 
 
@@ -88,7 +108,7 @@ class BulletManager:
     def __init__(self):
         self.bullet_count = INITIAL_BULLETS
         self.bullets = []
-
+        self.bullet_image = load_grid_image("assets/images/items/bullet.png")
     def shoot(self, player_snake, direction: tuple[int, int], game_map) -> None:
 
         if self.bullet_count <= 0:
@@ -177,7 +197,7 @@ class BulletManager:
                 player_hit_by_bullet = True
             if bullet.alive:
                 alive_bullets.append(bullet)
-                
+
         self.bullets = alive_bullets
         return player_hit_by_bullet
 
@@ -186,4 +206,4 @@ class BulletManager:
 
     def draw(self, screen) -> None:
         for bullet in self.bullets:
-            bullet.draw(screen)
+            bullet.draw(screen, self.bullet_image)

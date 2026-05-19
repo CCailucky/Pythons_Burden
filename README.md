@@ -48,6 +48,7 @@ USYD COMP9001 Final Project
 | 36 | Add bullet can hurt player snake and -1 life |
 | 37 | Add bullet supply item, add random amount of the bullet |
 | 38 | optimize the spawn, use BFS to check the whether the grid is reachable |
+| 39 | Add assets of floor tiles and wall tiles |
 ## Project Structure
 
 ```text

@@ -15,6 +15,8 @@ from settings import (
     APPLE_LIFETIME_RANDOM_RANGE_MS,
 )
 
+from assets_loader import load_grid_image
+
 
 class Apple:
     def __init__(
@@ -27,6 +29,11 @@ class Apple:
         self.letter = letter
         self.spawn_time = pygame.time.get_ticks()
         self.lifetime = self.get_random_lifetime()
+
+        self.image = load_grid_image(f"assets/images/apples/{self.letter}.png")
+        # fallback image, used when a specific letter image is missing
+        if self.image is None:
+            self.image = load_grid_image("assets/images/apples/apple.png")
 
     # single apple
     def spawn_and_get_apple_position(
@@ -45,13 +52,23 @@ class Apple:
     def draw(self, screen, font) -> None:
         x, y = self.pos
 
-        rect = pygame.Rect(
+        draw_pos = (
             MAP_X + x * GRID_SIZE,
             MAP_Y + y * GRID_SIZE,
+        )
+
+        rect = pygame.Rect(
+            draw_pos[0],
+            draw_pos[1],
             GRID_SIZE,
             GRID_SIZE,
         )
 
+        if self.image is not None:
+            screen.blit(self.image, draw_pos)
+            return
+
+        # fallback: draw the old rectangle apple
         pygame.draw.rect(screen, APPLE_COLOUR, rect)
 
         letter_text = font.render(self.letter, True, TEXT_COLOUR)
@@ -83,16 +100,29 @@ class GoldenApple(Apple):
         self.spawn_time = pygame.time.get_ticks()
         self.lifetime = self.get_random_lifetime()
 
+        self.image = load_grid_image("assets/images/apples/golden_apple.png")
+
+
     def draw(self, screen, font) -> None:
         x, y = self.pos
 
-        rect = pygame.Rect(
+        draw_pos = (
             MAP_X + x * GRID_SIZE,
             MAP_Y + y * GRID_SIZE,
+        )
+
+        rect = pygame.Rect(
+            draw_pos[0],
+            draw_pos[1],
             GRID_SIZE,
             GRID_SIZE,
         )
 
+        if self.image is not None:
+            screen.blit(self.image, draw_pos)
+            return
+
+        # fallback: old rectangle style
         pygame.draw.rect(screen, GOLDEN_APPLE_COLOUR, rect)
 
         letter_text = font.render(self.letter, True, TEXT_COLOUR)

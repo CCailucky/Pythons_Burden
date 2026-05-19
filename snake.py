@@ -12,6 +12,11 @@ from settings import (
     INITIAL_SNAKE_BODY,
     INITIAL_LIVES,
 )
+from assets_loader import (
+    load_grid_image,
+    rotate_snake_image_by_direction,
+    get_snake_tail_direction,
+)
 
 
 class Snake:
@@ -27,6 +32,10 @@ class Snake:
         for segment in self.body:
             if segment not in self.occupied_positions:
                 self.occupied_positions.append(segment)
+
+        self.head_image = load_grid_image("assets/images/snake/PlayerSnakeHead.png")
+        self.body_image = load_grid_image("assets/images/snake/PlayerSnakeBody.png")
+        self.tail_image = load_grid_image("assets/images/snake/PlayerSnakeTail16.png")
 
     def move(self, next_head: tuple[int, int], should_grow: bool) -> None:
         self.body.insert(0, next_head)  # insert new head into snake_body[0]
@@ -150,6 +159,19 @@ class Snake:
                 if removed_tail in self.occupied_positions:
                     self.occupied_positions.remove(removed_tail)
 
+    def draw_snake_image(
+        self, screen, image: pygame.Surface | None, rect: pygame.Rect
+    ) -> None:
+        if image is None:
+            pygame.draw.rect(screen, SNAKE_COLOUR, rect)
+            return
+        if self.is_invincible:
+            transparent_image = image.copy()
+            transparent_image.set_alpha(120)
+            screen.blit(transparent_image, rect)
+        else:
+            screen.blit(image, rect)
+
     def draw(self, screen, font, collected_letters: list[str]) -> None:
 
         # get index and segment
@@ -162,25 +184,34 @@ class Snake:
                 GRID_SIZE,
                 GRID_SIZE,
             )
-            # draw snake invincible by alpha access
-            if self.is_invincible:
-                snake_surface = pygame.Surface(
-                    (GRID_SIZE, GRID_SIZE),
-                    pygame.SRCALPHA,
+
+            # draw head
+            if index == 0:
+                image = rotate_snake_image_by_direction(
+                    self.head_image,
+                    self.direction,
                 )
-                snake_surface.fill(
-                    (
-                        SNAKE_COLOUR[0],
-                        SNAKE_COLOUR[1],
-                        SNAKE_COLOUR[2],
-                        100,
+                self.draw_snake_image(screen, image, rect)
+            # draw tail
+            elif index == len(self.body) - 1:
+                if len(self.body) >= 2:
+                    tail_direction = get_snake_tail_direction(
+                        self.body[-2],
+                        self.body[-1],
                     )
+                else:
+                    tail_direction = self.direction
+                image = rotate_snake_image_by_direction(
+                    self.tail_image,
+                    tail_direction,
                 )
-                screen.blit(snake_surface, rect)
+                self.draw_snake_image(screen, image, rect)
+            # draw body
             else:
-                pygame.draw.rect(screen, SNAKE_COLOUR, rect)
+                self.draw_snake_image(screen, self.body_image, rect)
 
             # index 0 is the snake head, so no letter on the head.
+
             if index > 0:
                 letter_index = index - 1
 

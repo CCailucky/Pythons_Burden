@@ -17,6 +17,11 @@ from settings import (
     ENEMY_MIN_STEPS,
     ENEMY_MAX_STEPS,
 )
+from assets_loader import (
+    load_grid_image,
+    rotate_snake_image_by_direction,
+    get_snake_tail_direction,
+)
 
 
 class EnemySnake:
@@ -32,6 +37,11 @@ class EnemySnake:
 
         for segment in self.body:
             self.occupied_positions.append(segment)
+
+        # assets
+        self.head_image = load_grid_image("assets/images/snake/EnemySnakeHead.png")
+        self.body_image = load_grid_image("assets/images/snake/EnemySnakeBody.png")
+        self.tail_image = load_grid_image("assets/images/snake/EnemySnakeTail.png")
 
     def spawn_and_get_body(self, game_map) -> list[tuple[int, int]]:
         while True:
@@ -68,16 +78,48 @@ class EnemySnake:
                 self.direction = direction
                 return body
 
+    def draw_snake_image(
+        self, screen, image: pygame.Surface | None, rect: pygame.Rect
+    ) -> None:
+        if image is None:
+            pygame.draw.rect(screen, ENEMY_SNAKE_COLOUR, rect)
+            return
+        screen.blit(image, rect)
+
     def draw(self, screen) -> None:
-        for segment in self.body:
+        for index, segment in enumerate(self.body):
             x, y = segment
+
             rect = pygame.Rect(
                 MAP_X + x * GRID_SIZE,
                 MAP_Y + y * GRID_SIZE,
                 GRID_SIZE,
                 GRID_SIZE,
             )
-            pygame.draw.rect(screen, ENEMY_SNAKE_COLOUR, rect)
+            # head
+            if index == 0:
+                image = rotate_snake_image_by_direction(
+                    self.head_image,
+                    self.direction,
+                )
+                self.draw_snake_image(screen, image, rect)
+            # tail
+            elif index == len(self.body) - 1:
+                if len(self.body) >= 2:
+                    tail_direction = get_snake_tail_direction(
+                        self.body[-2],
+                        self.body[-1],
+                    )
+                else:
+                    tail_direction = self.direction
+                image = rotate_snake_image_by_direction(
+                    self.tail_image,
+                    tail_direction,
+                )
+                self.draw_snake_image(screen, image, rect)
+            # body
+            else:
+                self.draw_snake_image(screen, self.body_image, rect)
 
     def get_next_head_pos(self, direction: tuple[int, int]) -> tuple[int, int]:
         head_x, head_y = self.body[0]
