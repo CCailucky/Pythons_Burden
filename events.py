@@ -40,6 +40,9 @@ def handle_events(
                 and event.key == pygame.K_f
             ):
                 shoot_request = True
+            # press esc to quit the game
+            if event.key == pygame.K_ESCAPE:
+                game_running = False
 
             # game is over then press r to restart the game
             if game_over and event.key == pygame.K_r:
