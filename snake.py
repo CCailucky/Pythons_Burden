@@ -172,6 +172,10 @@ class Snake:
         else:
             screen.blit(image, rect)
 
+    def add_pause_duration(self, paused_duration_ms: int) -> None:
+        if self.is_invincible:
+            self.invincible_start_time += paused_duration_ms
+
     def draw(self, screen, font, collected_letters: list[str]) -> None:
 
         # get index and segment

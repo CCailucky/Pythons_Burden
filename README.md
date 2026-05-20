@@ -51,6 +51,7 @@ USYD COMP9001 Final Project
 | 39 | Add assets of floor tiles and wall tiles |
 | 40 | Add assets of snake, enemy snake, letters, golden letter, tailcut, bulletsupply |
 | 40 | Add assets of portal, apple_question, image loader of specific size |
+| 41 | Fixed a bug where paused time incorrectly affected game timers and caused game state issues. |
 ## Project Structure
 
 ```text

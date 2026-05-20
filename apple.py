@@ -88,6 +88,9 @@ class Apple:
         current_time = pygame.time.get_ticks()
         return current_time - self.spawn_time >= self.lifetime
 
+    def add_pause_duration(self, paused_duration_ms: int) -> None:
+        self.spawn_time += paused_duration_ms
+
 
 class GoldenApple(Apple):
     def __init__(
@@ -101,7 +104,6 @@ class GoldenApple(Apple):
         self.lifetime = self.get_random_lifetime()
 
         self.image = load_grid_image("assets/images/apples/golden_apple.png")
-
 
     def draw(self, screen, font) -> None:
         x, y = self.pos
@@ -322,6 +324,13 @@ class AppleManager:
                     self.occupied_positions.remove(golden_apple.pos)
                 return True
         return False
+
+    def add_pause_duration(self, paused_duration_ms: int) -> None:
+        for apple in self.apples:
+            apple.add_pause_duration(paused_duration_ms)
+
+        for golden_apple in self.golden_apples:
+            golden_apple.add_pause_duration(paused_duration_ms)
 
     # draw all apples
     def draw(self, screen, font) -> None:

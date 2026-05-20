@@ -17,6 +17,7 @@ from settings import (
 )
 from assets_loader import load_grid_image
 
+
 class TailCutItem:
     def __init__(
         self,
@@ -31,7 +32,7 @@ class TailCutItem:
             self.pos = pos
         self.cut_count = random.randint(1, 3)
         self.image = load_grid_image("assets/images/items/tailcut.png")
-        
+
     def spawn_and_get_position(
         self,
         game_map,
@@ -280,6 +281,9 @@ class ItemManager:
             return
         self.spawn_bullet_supply(game_map)
         self.last_bullet_supply_spawn_time = current_time
+
+    def add_pause_duration(self, paused_duration_ms: int) -> None:
+        self.last_bullet_supply_spawn_time += paused_duration_ms
 
     def draw(self, screen, font) -> None:
         for tail_cut_item in self.tail_cut_items:

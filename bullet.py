@@ -75,6 +75,10 @@ class Bullet:
             self.move(game_map)
             self.last_move_time = current_time
 
+    def add_pause_duration(self, paused_duration_ms: int) -> None:
+        self.spawn_time += paused_duration_ms
+        self.last_move_time += paused_duration_ms
+
     def draw(
         self,
         screen,
@@ -109,6 +113,7 @@ class BulletManager:
         self.bullet_count = INITIAL_BULLETS
         self.bullets = []
         self.bullet_image = load_grid_image("assets/images/items/bullet.png")
+
     def shoot(self, player_snake, direction: tuple[int, int], game_map) -> None:
 
         if self.bullet_count <= 0:
@@ -203,6 +208,10 @@ class BulletManager:
 
     def add_bullets(self, amount: int) -> None:
         self.bullet_count += amount
+
+    def add_pause_duration(self, paused_duration_ms: int) -> None:
+        for bullet in self.bullets:
+            bullet.add_pause_duration(paused_duration_ms)
 
     def draw(self, screen) -> None:
         for bullet in self.bullets:

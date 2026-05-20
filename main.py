@@ -76,6 +76,7 @@ def main():
     # ---arguments--- #
     game_running = True
     restart_request = False
+    pause_start_time = None
     # game map
     game_map = GameMap()
     # font
@@ -118,6 +119,21 @@ def main():
             game_paused,
             ui,
         )
+        # for time offset when pausing the game(fix the correct start time after pausing)
+        if game_paused:
+            if pause_start_time is None:
+                pause_start_time = pygame.time.get_ticks()
+        else:
+            if pause_start_time is not None:
+                paused_duration = pygame.time.get_ticks() - pause_start_time
+
+                last_game_tick_time += paused_duration
+                player_snake.add_pause_duration(paused_duration)
+                apple_manager.add_pause_duration(paused_duration)
+                item_manager.add_pause_duration(paused_duration)
+                enemy_manager.add_pause_duration(paused_duration)
+                bullet_manager.add_pause_duration(paused_duration)
+                pause_start_time = None
 
         if restart_request:
             (
@@ -283,7 +299,7 @@ def main():
                             eaten_bullet_supply_item, bullet_manager
                         )
                         ui.add_status_message(f"Bullet supply +{bullet_amount}")
-                        
+
                     if is_tail_cut_eaten:
                         cut_count = eaten_tail_cut_item.cut_count
                         old_length = len(collected_letters)

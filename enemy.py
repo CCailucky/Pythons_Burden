@@ -467,6 +467,9 @@ class EnemyManager:
                 )
         self.enemy_snakes = alive_enemies
 
+    def add_pause_duration(self, paused_duration_ms: int) -> None:
+        self.last_spawn_time += paused_duration_ms
+
     def draw(self, screen) -> None:
         for enemy_snake in self.enemy_snakes:
             enemy_snake.draw(screen)
