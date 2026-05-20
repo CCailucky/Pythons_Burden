@@ -52,6 +52,8 @@ USYD COMP9001 Final Project
 | 40 | Add assets of snake, enemy snake, letters, golden letter, tailcut, bulletsupply |
 | 40 | Add assets of portal, apple_question, image loader of specific size |
 | 41 | Fixed a bug where paused time incorrectly affected game timers and caused game state issues. |
+| 42 | Add auto responsive window resizing, prevent the game window from exceeding the screen boundary |
+
 ## Project Structure
 
 ```text

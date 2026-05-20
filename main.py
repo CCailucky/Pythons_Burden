@@ -7,6 +7,8 @@ from settings import (
     MAX_APPLES,
     FPS,
     SNAKE_MOVE_INTERVAL_MS,
+    WINDOW_WIDTH_RATIO,
+    WINDOW_HEIGHT_RATIO,
 )
 from snake import Snake
 from apple import (
@@ -67,9 +69,26 @@ def reset_game(game_map, ui):
     )
 
 
+# adaptive to the window screen size
+def get_adaptive_window_size() -> tuple[int, int]:
+    display_info = pygame.display.Info()
+
+    max_width = int(display_info.current_w * WINDOW_WIDTH_RATIO)
+    max_height = int(display_info.current_h * WINDOW_HEIGHT_RATIO)
+
+    scale = min(max_width / SCREEN_WIDTH, max_height / SCREEN_HEIGHT, 1)
+
+    window_width = int(SCREEN_WIDTH * scale)
+    window_height = int(SCREEN_HEIGHT * scale)
+
+    return window_width, window_height
+
+
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    window_size = get_adaptive_window_size()
+    screen = pygame.display.set_mode(window_size)
+    game_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Python's Burden: Escape from COMP9001")
     clock = pygame.time.Clock()
 
@@ -342,21 +361,25 @@ def main():
                         ui.add_status_message("You entered the portal! You Win!")
                         ui.add_status_message("Press R to restart")
         # draw
-        screen.fill(BACKGROUND_COLOUR)
-        game_map.draw(screen)
-        player_snake.draw(screen, grid_font, collected_letters)
-        apple_manager.draw(screen, grid_font)
-        item_manager.draw(screen, grid_font)
-        enemy_manager.draw(screen)
-        bullet_manager.draw(screen)
+        game_surface.fill(BACKGROUND_COLOUR)
+
+        game_map.draw(game_surface)
+        player_snake.draw(game_surface, grid_font, collected_letters)
+        apple_manager.draw(game_surface, grid_font)
+        item_manager.draw(game_surface, grid_font)
+        enemy_manager.draw(game_surface)
+        bullet_manager.draw(game_surface)
         ui.draw(
-            screen,
+            game_surface,
             player_snake.lives,
             game_over,
             game_win,
             collected_letters,
             bullet_manager.bullet_count,
         )
+        # scale game_surface to window size
+        scaled_surface = pygame.transform.scale(game_surface, window_size)
+        screen.blit(scaled_surface, (0, 0))
         pygame.display.flip()  # draw all
 
         clock.tick(FPS)  # FPS
