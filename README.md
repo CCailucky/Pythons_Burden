@@ -57,6 +57,7 @@ USYD COMP9001 Final Project
 | 44 | Encapsulate some code of game_controller |
 | 45 | add pause menu and modify some keys to pause, resume and quit |
 | 46 | add UI item introduction |
+| 47 | Add start interface and buttons, mouse action applies |
 ## Project Structure
 
 ```text

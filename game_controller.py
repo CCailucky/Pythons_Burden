@@ -4,6 +4,9 @@ from settings import (
     BACKGROUND_COLOUR,
     MAX_APPLES,
     SNAKE_MOVE_INTERVAL_MS,
+    SCREEN_START_INTERFACE,
+    SCREEN_RULES_INTERFACE,
+    SCREEN_GAME,
 )
 from snake import Snake
 from apple import (
@@ -27,6 +30,8 @@ class GameController:
         self.ui = ui
         self.grid_font = grid_font
         self.reset()
+        self.game_started = False
+        self.current_screen = SCREEN_START_INTERFACE
 
     ################################# RESET #################################
     # reset the game
@@ -48,7 +53,7 @@ class GameController:
         # game status
         self.game_over = False
         self.game_win = False
-        self.game_started = False
+        game_started = False
         self.game_paused = False
         self.shoot_request = False
         self.pause_start_time = None
@@ -173,6 +178,7 @@ class GameController:
             self.game_started,
             self.game_paused,
             self.shoot_request,
+            menu_action,
         ) = handle_input_events(
             game_running,
             self.player_snake.direction,
@@ -181,13 +187,45 @@ class GameController:
             self.game_started,
             self.game_paused,
             self.ui,
-            display
+            display,
+            self.current_screen,
         )
+        # handle button event
+        game_running = self.handle_menu_action(menu_action, game_running)
+
 
         self.handle_pause_time_offset()
 
         if restart_request:
             self.reset()
+
+        return game_running
+
+    def handle_menu_action(self, menu_action: str | None, game_running: bool) -> bool:
+        if menu_action is None:
+            return game_running
+        if menu_action == "start":
+            self.reset()
+            self.current_screen = SCREEN_GAME
+            self.game_started = True
+            self.ui.add_status_message("Game started!")
+        elif menu_action == "rules":
+            self.current_screen = SCREEN_RULES_INTERFACE
+        elif menu_action == "back":
+            self.current_screen = SCREEN_START_INTERFACE
+        elif menu_action == "pause":
+            self.game_paused = True
+            self.ui.add_status_message("Game paused")
+        elif menu_action == "resume":
+            self.game_paused = False
+            self.ui.add_status_message("Game resumed")
+        elif menu_action == "reset":
+            self.reset()
+            self.current_screen = SCREEN_GAME
+            self.game_started = True
+            self.ui.add_status_message("Game restarted!")
+        elif menu_action == "quit":
+            game_running = False
 
         return game_running
 
@@ -235,7 +273,8 @@ class GameController:
     # check whether the game is normally running
     def can_update_game(self) -> bool:
         return (
-            self.game_started
+            self.current_screen == SCREEN_GAME
+            and self.game_started
             and not self.game_paused
             and not self.game_over
             and not self.game_win
@@ -340,6 +379,14 @@ class GameController:
 
     ################################# DRAW #################################
     def draw(self, surface) -> None:
+        # start interface
+        if self.current_screen == SCREEN_START_INTERFACE:
+            self.ui.draw_start_interface(surface)
+            return
+        # rule interface
+        if self.current_screen == SCREEN_RULES_INTERFACE:
+            self.ui.draw_rules_interface(surface)
+            return
         surface.fill(BACKGROUND_COLOUR)
 
         self.game_map.draw(surface)

@@ -25,6 +25,12 @@ from settings import (
     PAUSE_MENU_BUTTON_GAP,
     PAUSE_MENU_START_Y_OFFSET,
     PAUSE_MENU_HINT_OFFSET_Y,
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    START_MENU_BUTTON_WIDTH,
+    START_MENU_BUTTON_HEIGHT,
+    START_MENU_BUTTON_GAP,
+    START_MENU_BUTTON_BOTTOM_MARGIN,
 )
 from assets_loader import load_image
 
@@ -46,6 +52,7 @@ class UI:
         )
         self.win_image = load_image("assets/images/ui/win.png", (UI_WIDTH - 40, 90))
         self.lose_image = load_image("assets/images/ui/lose.png", (UI_WIDTH - 40, 90))
+        # GAME UI
         # button
         self.pause_resume_button_image = load_image(
             "assets/images/ui/resume_button.png",
@@ -68,6 +75,25 @@ class UI:
             "assets/images/items/bulletsupply.png", (16, 16)
         )
         self.tail_cut_icon = load_image("assets/images/items/tailcut.png", (16, 16))
+        # START INTERFACE
+        self.start_interface_image = load_image(
+            "assets/images/ui/start_interface.png", (SCREEN_WIDTH, SCREEN_HEIGHT)
+        )
+
+        self.start_button_image = load_image(
+            "assets/images/ui/start_button.png",
+            (START_MENU_BUTTON_WIDTH, START_MENU_BUTTON_HEIGHT),
+        )
+
+        self.rules_button_image = load_image(
+            "assets/images/ui/rules_button.png",
+            (START_MENU_BUTTON_WIDTH, START_MENU_BUTTON_HEIGHT),
+        )
+
+        self.quit_button2_image = load_image(
+            "assets/images/ui/quit_button2.png",
+            (START_MENU_BUTTON_WIDTH, START_MENU_BUTTON_HEIGHT),
+        )
 
     def load_font(
         self,
@@ -87,7 +113,6 @@ class UI:
 
     def reset_status_messages(self) -> None:
         self.status_messages = []
-        self.add_status_message("Press SPACE to start")
 
     def get_pause_menu_button_rects(
         self, screen_width: int, screen_height: int
@@ -116,6 +141,34 @@ class UI:
         )
 
         return resume_rect, reset_rect, quit_rect
+
+    def get_start_interface_button_rects(
+        self, screen_width: int, screen_height: int
+    ) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
+        total_height = START_MENU_BUTTON_HEIGHT * 3 + START_MENU_BUTTON_GAP * 2
+
+        start_y = screen_height - total_height - START_MENU_BUTTON_BOTTOM_MARGIN
+        button_x = (screen_width - START_MENU_BUTTON_WIDTH) // 2
+
+        start_rect = pygame.Rect(
+            button_x, start_y, START_MENU_BUTTON_WIDTH, START_MENU_BUTTON_HEIGHT
+        )
+
+        rules_rect = pygame.Rect(
+            button_x,
+            start_y + START_MENU_BUTTON_HEIGHT + START_MENU_BUTTON_GAP,
+            START_MENU_BUTTON_WIDTH,
+            START_MENU_BUTTON_HEIGHT,
+        )
+
+        quit_rect = pygame.Rect(
+            button_x,
+            start_y + (START_MENU_BUTTON_HEIGHT + START_MENU_BUTTON_GAP) * 2,
+            START_MENU_BUTTON_WIDTH,
+            START_MENU_BUTTON_HEIGHT,
+        )
+
+        return start_rect, rules_rect, quit_rect
 
     def draw(
         self,
@@ -184,7 +237,7 @@ class UI:
         for i, (icon, text) in enumerate(items):
             row_y = start_y + i * row_gap
 
-            screen.blit(icon, (icon_x, row_y+4))
+            screen.blit(icon, (icon_x, row_y + 4))
 
             text_surface = self.small_font.render(text, True, UI_TEXT_COLOUR)
             screen.blit(text_surface, (text_x, row_y))
@@ -281,3 +334,17 @@ class UI:
         )
         hint_rect = hint_text.get_rect(center=(screen_width // 2, hint_y))
         screen.blit(hint_text, hint_rect)
+
+    def draw_start_interface(self, screen) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        screen.blit(self.start_interface_image, (0, 0))
+
+        start_rect, rules_rect, quit_rect = self.get_start_interface_button_rects(
+            screen_width,
+            screen_height,
+        )
+
+        screen.blit(self.start_button_image, start_rect)
+        screen.blit(self.rules_button_image, rules_rect)
+        screen.blit(self.quit_button2_image, quit_rect)
