@@ -230,9 +230,11 @@ class GameController:
             self.current_screen = SCREEN_START_INTERFACE
             self.rules_page_index = 0
         elif menu_action == "next_rules":
-            self.rules_page_index += 1
+            if self.rules_page_index < self.ui.get_rules_page_count() - 1:
+                self.rules_page_index += 1
         elif menu_action == "prev_rules":
-            self.rules_page_index -= 1
+            if self.rules_page_index > 0:
+                self.rules_page_index -= 1
         return game_running
 
     def handle_pause_time_offset(self) -> None:

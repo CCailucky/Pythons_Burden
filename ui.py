@@ -56,6 +56,19 @@ from settings import (
     RULES_ITEM_ROW_GAP,
     RULES_ITEM_TITLE_LINE_GAP,
     RULES_ITEM_DESC_LINE_GAP,
+    # rules interface 3 and 4 images
+    RULES_MECHANIC_IMAGE_WIDTH,
+    RULES_MECHANIC_IMAGE_HEIGHT,
+    RULES_PAGE_TWO_COL_LEFT_X,
+    RULES_PAGE_TWO_COL_RIGHT_X,
+    RULES_PAGE_IMAGE_TOP_Y,
+    RULES_PAGE_THREE_COL_LEFT_X,
+    RULES_PAGE_THREE_COL_MIDDLE_X,
+    RULES_PAGE_THREE_COL_RIGHT_X,
+    RULES_IMAGE_TITLE_OFFSET_Y,
+    RULES_IMAGE_DESC_OFFSET_Y,
+    RULES_IMAGE_DESC_LINE_GAP,
+    RULES_BOTTOM_INFO_Y,
 )
 from assets_loader import load_image
 
@@ -158,6 +171,40 @@ class UI:
 
         self.rules_tail_cut_icon = load_image(
             "assets/images/items/tailcut.png",
+            (RULES_ITEM_ICON_SIZE, RULES_ITEM_ICON_SIZE),
+        )
+        # RULES INTERFACE 3 AND 4
+        self.rules_bullet_enemy_image = load_image(
+            "assets/images/intro/bullet_vs_enemy.png",
+            (RULES_MECHANIC_IMAGE_WIDTH, RULES_MECHANIC_IMAGE_HEIGHT),
+        )
+
+        self.rules_bullet_enemy_2_image = load_image(
+            "assets/images/intro/bullet_vs_enemy2.png",
+            (RULES_MECHANIC_IMAGE_WIDTH, RULES_MECHANIC_IMAGE_HEIGHT),
+        )
+
+        self.rules_eat_letter_image = load_image(
+            "assets/images/intro/eat_letter.png",
+            (RULES_MECHANIC_IMAGE_WIDTH, RULES_MECHANIC_IMAGE_HEIGHT),
+        )
+
+        self.rules_target_image = load_image(
+            "assets/images/intro/target.png",
+            (RULES_MECHANIC_IMAGE_WIDTH, RULES_MECHANIC_IMAGE_HEIGHT),
+        )
+
+        self.rules_exit_portal_image = load_image(
+            "assets/images/intro/exit_portal.png",
+            (RULES_MECHANIC_IMAGE_WIDTH, RULES_MECHANIC_IMAGE_HEIGHT),
+        )
+
+        self.rules_heart_icon = load_image(
+            "assets/images/intro/heart.png",
+            (RULES_ITEM_ICON_SIZE, RULES_ITEM_ICON_SIZE),
+        )
+        self.rules_quantum_teleport_icon = load_image(
+            "assets/images/intro/teleport.png",
             (RULES_ITEM_ICON_SIZE, RULES_ITEM_ICON_SIZE),
         )
 
@@ -473,7 +520,10 @@ class UI:
         elif rules_page_index == 1:
             self.draw_rules_controls_items_page(screen)
         elif rules_page_index == 2:
-            self.draw_rules_combat_escape_page(screen)
+            self.draw_rules_sequence_escape_page(screen)
+        elif rules_page_index == 3:
+            self.draw_rules_fight_survival_page(screen)
+
     # common func
     def draw_rules_page_title(self, screen, title: str) -> None:
         screen_width, screen_height = screen.get_size()
@@ -482,17 +532,16 @@ class UI:
         title_rect = title_text.get_rect(center=(screen_width // 2, RULES_TITLE_Y))
         screen.blit(title_text, title_rect)
 
+    # page 1
     def draw_rules_intro_page(self, screen) -> None:
         screen_width, screen_height = screen.get_size()
 
         self.draw_rules_page_title(screen, "INTRODUCTION")
 
         story_lines = [
-            "Python, a little snake, accidentally enters a maze called COMP9001.",
-            "Help Python collect letters, gather useful items,",
-            "defeat guardian snakes, and build the correct key sequence.",
-            "Once the sequence is complete,",
-            "an escape portal will open somewhere on the map.",
+            "Python, a little snake, accidentally enters the COMP9001 maze.",
+            "Collect letters and defeat guardian snakes.",
+            "Complete the key sequence to open the escape portal.",
             "Enter the portal and escape from COMP9001!",
         ]
 
@@ -505,6 +554,7 @@ class UI:
                 )
             )
             screen.blit(line_text, line_rect)
+
     # a helper to draw icons and descriptions
     def draw_rules_icon_item(self, screen, icon, title, lines, x, y) -> None:
         screen.blit(icon, (x, y))
@@ -524,6 +574,7 @@ class UI:
                 ),
             )
 
+    # page 2
     def draw_rules_controls_items_page(self, screen) -> None:
         screen_width, screen_height = screen.get_size()
 
@@ -547,7 +598,7 @@ class UI:
         self.draw_rules_icon_item(
             screen,
             self.rules_letter_icon,
-            "Letter Apple",
+            "Letter",
             [
                 "Collect letters in the correct order.",
                 "Eating one grows Python by 1 segment.",
@@ -559,9 +610,8 @@ class UI:
         self.draw_rules_icon_item(
             screen,
             self.rules_wildcard_icon,
-            "Golden Apple",
+            "Wildcard Letter",
             [
-                "Works as a wildcard letter.",
                 "Becomes the next required letter.",
             ],
             RULES_ITEM_LEFT_X,
@@ -591,3 +641,137 @@ class UI:
             RULES_ITEM_LEFT_X,
             RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP * 2,
         )
+
+    # page 3
+    def draw_rules_sequence_escape_page(self, screen) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        title_text = self.title_font.render("SEQUENCE & ESCAPE", True, UI_ACCENT_COLOUR)
+        title_rect = title_text.get_rect(center=(screen_width // 2, RULES_TITLE_Y))
+        screen.blit(title_text, title_rect)
+
+        image_y = RULES_PAGE_IMAGE_TOP_Y
+
+        x1 = RULES_PAGE_THREE_COL_LEFT_X
+        x2 = RULES_PAGE_THREE_COL_MIDDLE_X
+        x3 = RULES_PAGE_THREE_COL_RIGHT_X
+
+        screen.blit(self.rules_eat_letter_image, (x1, image_y))
+        screen.blit(self.rules_target_image, (x2, image_y))
+        screen.blit(self.rules_exit_portal_image, (x3, image_y))
+
+        title_1 = self.font.render("Collect letters", True, UI_ACCENT_COLOUR)
+        screen.blit(title_1, (x1, image_y + RULES_IMAGE_TITLE_OFFSET_Y))
+
+        desc_1 = [
+            "Collect a letter",
+            "Python grows by 1 segment.",
+        ]
+
+        title_2 = self.font.render("Target Sequence", True, UI_ACCENT_COLOUR)
+        screen.blit(title_2, (x2, image_y + RULES_IMAGE_TITLE_OFFSET_Y))
+
+        desc_2 = [
+            "Try to collect letters in order",
+            "to match the target sequence",
+        ]
+
+        title_3 = self.font.render("Escape Portal", True, UI_ACCENT_COLOUR)
+        screen.blit(title_3, (x3, image_y + RULES_IMAGE_TITLE_OFFSET_Y))
+
+        desc_3 = [
+            "Complete the sequence.",
+            "Enter the portal to win.",
+        ]
+
+        for i, line in enumerate(desc_1):
+            text = self.small_font.render(line, True, UI_TEXT_COLOUR)
+            screen.blit(
+                text,
+                (
+                    x1,
+                    image_y + RULES_IMAGE_DESC_OFFSET_Y + i * RULES_IMAGE_DESC_LINE_GAP,
+                ),
+            )
+
+        for i, line in enumerate(desc_2):
+            text = self.small_font.render(line, True, UI_TEXT_COLOUR)
+            screen.blit(
+                text,
+                (
+                    x2,
+                    image_y + RULES_IMAGE_DESC_OFFSET_Y + i * RULES_IMAGE_DESC_LINE_GAP,
+                ),
+            )
+
+        for i, line in enumerate(desc_3):
+            text = self.small_font.render(line, True, UI_TEXT_COLOUR)
+            screen.blit(
+                text,
+                (
+                    x3,
+                    image_y + RULES_IMAGE_DESC_OFFSET_Y + i * RULES_IMAGE_DESC_LINE_GAP,
+                ),
+            )
+
+    # page 4
+    def draw_rules_fight_survival_page(self, screen) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        title_text = self.title_font.render("FIGHT & SURVIVAL", True, UI_ACCENT_COLOUR)
+        title_rect = title_text.get_rect(center=(screen_width // 2, RULES_TITLE_Y))
+        screen.blit(title_text, title_rect)
+
+        left_x = RULES_PAGE_TWO_COL_LEFT_X
+        right_x = RULES_PAGE_TWO_COL_RIGHT_X
+        image_y = RULES_PAGE_IMAGE_TOP_Y
+
+        screen.blit(self.rules_bullet_enemy_image, (left_x, image_y))
+        screen.blit(self.rules_bullet_enemy_2_image, (right_x, image_y))
+
+        left_title = self.font.render("Hit Head / 1st Body", True, UI_ACCENT_COLOUR)
+        screen.blit(left_title, (left_x, image_y + RULES_IMAGE_TITLE_OFFSET_Y))
+
+        left_desc = self.small_font.render(
+            "Defeat the guardian snake.",
+            True,
+            UI_TEXT_COLOUR,
+        )
+        screen.blit(left_desc, (left_x, image_y + RULES_IMAGE_DESC_OFFSET_Y))
+
+        right_title = self.font.render("Hit Other Body Parts", True, UI_ACCENT_COLOUR)
+        screen.blit(right_title, (right_x, image_y + RULES_IMAGE_TITLE_OFFSET_Y))
+
+        right_desc = self.small_font.render(
+            "Cut from the hit point to the tail.",
+            True,
+            UI_TEXT_COLOUR,
+        )
+        screen.blit(right_desc, (right_x, image_y + RULES_IMAGE_DESC_OFFSET_Y))
+
+        info_y = RULES_BOTTOM_INFO_Y
+
+        screen.blit(self.rules_bullet_icon, (left_x, info_y))
+        bullet_text_1 = self.small_font.render(
+            "Bullets can destroy letters, items, and guardian snakes.",
+            True,
+            UI_TEXT_COLOUR,
+        )
+        screen.blit(bullet_text_1, (left_x + 80, info_y + 10))
+
+        screen.blit(self.rules_heart_icon, (left_x, info_y + 80))
+        heart_text_1 = self.small_font.render(
+            "Python loses 1 life when hitting walls, itself, or enemies.",
+            True,
+            UI_TEXT_COLOUR,
+        )
+        screen.blit(heart_text_1, (left_x + 80, info_y + 90))
+        
+
+        screen.blit(self.rules_quantum_teleport_icon, (left_x, info_y + 160))
+        teleport_text = self.small_font.render(
+            "Quantum Teleport: pass through one edge and reappear from the opposite side.",
+            True,
+            UI_TEXT_COLOUR,
+        )
+        screen.blit(teleport_text, (left_x + 80, info_y + 170))
