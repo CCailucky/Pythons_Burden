@@ -54,6 +54,8 @@ USYD COMP9001 Final Project
 | 41 | Fixed a bug where paused time incorrectly affected game timers and caused game state issues. |
 | 42 | Add auto responsive window resizing, prevent the game window from exceeding the screen boundary |
 | 43 | Encapsulate most of the game code to simplify the main function. |
+| 44 | Encapsulate some code of game_controller |
+| 45 | add pause menu and modify some keys to pause, resume and quit |
 ## Project Structure
 
 ```text

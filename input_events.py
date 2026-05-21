@@ -25,13 +25,19 @@ def handle_input_events(
                 game_started = True
                 game_paused = False
                 ui.add_status_message("Game started!")
-            # press p to pause the game
-            if game_started == True and not game_over and event.key == pygame.K_p:
+            # press ESC to pause the game ESC to resume the game.
+            if game_started and not game_over and event.key == pygame.K_ESCAPE:
                 game_paused = not game_paused
                 if game_paused:
                     ui.add_status_message("Game paused")
                 else:
                     ui.add_status_message("Game resumed")
+            # when pausing the game, press R to restart, press Q to quit
+            if game_started and game_paused:
+                if event.key == pygame.K_r:
+                    restart_request = True
+                elif event.key == pygame.K_q:
+                    game_running = False
             # press f to fire a bullet
             if (
                 game_started == True
@@ -40,9 +46,6 @@ def handle_input_events(
                 and event.key == pygame.K_f
             ):
                 shoot_request = True
-            # press esc to quit the game
-            if event.key == pygame.K_ESCAPE:
-                game_running = False
 
             # game is over then press r to restart the game
             if game_over and event.key == pygame.K_r:
@@ -51,15 +54,27 @@ def handle_input_events(
             if game_started and not game_over and not game_paused:
                 # Change pending direction by arrow keys.
                 # Only allow one queued turn before the next snake move.
-                if pending_direction == current_direction :
-                    if event.key == pygame.K_UP and current_direction  != DIRECTIONS["DOWN"]:
-                        pending_direction  = DIRECTIONS["UP"]
-                    elif event.key == pygame.K_DOWN and current_direction  != DIRECTIONS["UP"]:
-                        pending_direction  = DIRECTIONS["DOWN"]
-                    elif event.key == pygame.K_LEFT and current_direction  != DIRECTIONS["RIGHT"]:
-                        pending_direction  = DIRECTIONS["LEFT"]
-                    elif event.key == pygame.K_RIGHT and current_direction  != DIRECTIONS["LEFT"]:
-                        pending_direction  = DIRECTIONS["RIGHT"]
+                if pending_direction == current_direction:
+                    if (
+                        event.key == pygame.K_UP
+                        and current_direction != DIRECTIONS["DOWN"]
+                    ):
+                        pending_direction = DIRECTIONS["UP"]
+                    elif (
+                        event.key == pygame.K_DOWN
+                        and current_direction != DIRECTIONS["UP"]
+                    ):
+                        pending_direction = DIRECTIONS["DOWN"]
+                    elif (
+                        event.key == pygame.K_LEFT
+                        and current_direction != DIRECTIONS["RIGHT"]
+                    ):
+                        pending_direction = DIRECTIONS["LEFT"]
+                    elif (
+                        event.key == pygame.K_RIGHT
+                        and current_direction != DIRECTIONS["LEFT"]
+                    ):
+                        pending_direction = DIRECTIONS["RIGHT"]
     return (
         game_running,
         pending_direction,

@@ -239,7 +239,13 @@ class GameController:
             and not self.game_over
             and not self.game_win
         )
-
+    def can_draw_pause_overlay(self) -> bool:
+        return (
+            self.game_started
+            and self.game_paused
+            and not self.game_over
+            and not self.game_win
+        )
     # for main.py to update the game logic
     def update(self) -> None:
         if not self.can_update_game():
@@ -352,3 +358,5 @@ class GameController:
             self.collected_letters,
             self.bullet_manager.bullet_count,
         )
+        if self.can_draw_pause_overlay():
+            self.ui.draw_pause_overlay(surface)

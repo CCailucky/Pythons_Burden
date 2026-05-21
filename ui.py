@@ -18,6 +18,13 @@ from settings import (
     UI_SMALL_FONT_SIZE,
     TARGET_SEQUENCE,
     MAX_MSGS,
+    PAUSE_OVERLAY_ALPHA,
+    PAUSE_MENU_TITLE_Y,
+    PAUSE_MENU_BUTTON_WIDTH,
+    PAUSE_MENU_BUTTON_HEIGHT,
+    PAUSE_MENU_BUTTON_GAP,
+    PAUSE_MENU_START_Y_OFFSET,
+    PAUSE_MENU_HINT_OFFSET_Y,
 )
 from assets_loader import load_image
 
@@ -39,6 +46,19 @@ class UI:
         )
         self.win_image = load_image("assets/images/ui/win.png", (UI_WIDTH - 40, 90))
         self.lose_image = load_image("assets/images/ui/lose.png", (UI_WIDTH - 40, 90))
+
+        self.pause_resume_button_image = load_image(
+            "assets/images/ui/resume_button.png",
+            (PAUSE_MENU_BUTTON_WIDTH, PAUSE_MENU_BUTTON_HEIGHT),
+        )
+        self.pause_reset_button_image = load_image(
+            "assets/images/ui/reset_button.png",
+            (PAUSE_MENU_BUTTON_WIDTH, PAUSE_MENU_BUTTON_HEIGHT),
+        )
+        self.pause_quit_button_image = load_image(
+            "assets/images/ui/quit_button.png",
+            (PAUSE_MENU_BUTTON_WIDTH, PAUSE_MENU_BUTTON_HEIGHT),
+        )
 
     def load_font(
         self,
@@ -86,18 +106,14 @@ class UI:
         pygame.draw.rect(screen, UI_BORDER_COLOUR, ui_rect, 3)
 
     def draw_title(self, screen) -> None:
-        if self.banner_image is not None:
-            screen.blit(self.banner_image, (UI_X + 20, UI_Y + 20))
-            return
-        title_text = self.title_font.render("Python's Burden", True, UI_TITLE_COLOUR)
-        screen.blit(title_text, (UI_X + 20, UI_Y + 20))
+        screen.blit(self.banner_image, (UI_X + 20, UI_Y + 20))
 
     def draw_controls(self, screen) -> None:
         control_x = UI_X + 30
         control_y = UI_Y + 145
         control_text = self.small_font.render("Arrow Keys: Move", True, UI_TEXT_COLOUR)
         screen.blit(control_text, (control_x, control_y))
-        pause_text = self.small_font.render("P: Pause / Resume", True, UI_TEXT_COLOUR)
+        pause_text = self.small_font.render("ESC: Pause / Resume", True, UI_TEXT_COLOUR)
         screen.blit(pause_text, (control_x, control_y + 28))
         start_text = self.small_font.render("SPACE: Start", True, UI_TEXT_COLOUR)
         screen.blit(start_text, (control_x, control_y + 56))
@@ -106,11 +122,7 @@ class UI:
         panel_x = UI_X + 30
         panel_y = UI_Y + 245
 
-        if self.life_panel_image is not None:
-            screen.blit(self.life_panel_image, (panel_x, panel_y))
-        else:
-            lives_text = self.font.render("Lives:", True, UI_ACCENT_COLOUR)
-            screen.blit(lives_text, (panel_x, panel_y))
+        screen.blit(self.life_panel_image, (panel_x, panel_y))
 
         lives_value = self.title_font.render(str(lives), True, UI_TEXT_COLOUR)
         screen.blit(lives_value, (panel_x + 140, panel_y + 23))
@@ -119,13 +131,13 @@ class UI:
         panel_x = UI_X + 310
         panel_y = UI_Y + 245
 
-        if self.bullet_panel_image is not None:
-            screen.blit(self.bullet_panel_image, (panel_x, panel_y))
-        else:
-            bullet_text = self.font.render("Bullets:", True, UI_ACCENT_COLOUR)
-            screen.blit(bullet_text, (panel_x, panel_y))
+        screen.blit(self.bullet_panel_image, (panel_x, panel_y))
 
-        bullet_value = self.title_font.render(str(bullet_count), True, UI_ACCENT_COLOUR)
+        bullet_value = self.title_font.render(
+            str(bullet_count),
+            True,
+            UI_ACCENT_COLOUR,
+        )
         screen.blit(bullet_value, (panel_x + 140, panel_y + 23))
 
     def draw_target_sequence(self, screen) -> None:
@@ -144,7 +156,6 @@ class UI:
         )
         screen.blit(collected_value, (UI_X + 30, UI_Y + 500))
 
-
     def draw_status_messages(self, screen) -> None:
         status_x = UI_X + 30
         status_y = UI_Y + 580
@@ -160,17 +171,52 @@ class UI:
     def draw_game_status(self, screen, game_over: bool, game_win: bool) -> None:
         banner_x = UI_X + 20
         banner_y = UI_Y + UI_HEIGHT - 115
-
         if game_win:
-            if self.win_image is not None:
-                screen.blit(self.win_image, (banner_x, banner_y))
-            else:
-                win_text = self.title_font.render("YOU WIN!", True, UI_TEXT_COLOUR)
-                screen.blit(win_text, (banner_x, banner_y))
+            screen.blit(self.win_image, (banner_x, banner_y))
             return
         if game_over:
-            if self.lose_image is not None:
-                screen.blit(self.lose_image, (banner_x, banner_y))
-            else:
-                lose_text = self.title_font.render("GAME OVER", True, (255, 80, 80))
-                screen.blit(lose_text, (banner_x, banner_y))
+            screen.blit(self.lose_image, (banner_x, banner_y))
+
+    def draw_pause_overlay(self, screen) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        # dark overlay
+        overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, PAUSE_OVERLAY_ALPHA))
+        screen.blit(overlay, (0, 0))
+
+        # title
+        title_text = self.title_font.render("GAME PAUSED", True, UI_ACCENT_COLOUR)
+        title_rect = title_text.get_rect(center=(screen_width // 2, PAUSE_MENU_TITLE_Y))
+        screen.blit(title_text, title_rect)
+
+        total_height = PAUSE_MENU_BUTTON_HEIGHT * 3 + PAUSE_MENU_BUTTON_GAP * 2
+
+        start_y = (screen_height - total_height) // 2 + PAUSE_MENU_START_Y_OFFSET
+        button_x = (screen_width - PAUSE_MENU_BUTTON_WIDTH) // 2
+
+        screen.blit(self.pause_resume_button_image, (button_x, start_y))
+
+        screen.blit(
+            self.pause_reset_button_image,
+            (button_x, start_y + PAUSE_MENU_BUTTON_HEIGHT + PAUSE_MENU_BUTTON_GAP),
+        )
+
+        screen.blit(
+            self.pause_quit_button_image,
+            (
+                button_x,
+                start_y + (PAUSE_MENU_BUTTON_HEIGHT + PAUSE_MENU_BUTTON_GAP) * 2,
+            ),
+        )
+
+        hint_text = self.small_font.render(
+            "ESC: Resume    R: Reset    Q: Quit", True, UI_TEXT_COLOUR
+        )
+        hint_rect = hint_text.get_rect(
+            center=(
+                screen_width // 2,
+                start_y + total_height + PAUSE_MENU_HINT_OFFSET_Y,
+            )
+        )
+        screen.blit(hint_text, hint_rect)
