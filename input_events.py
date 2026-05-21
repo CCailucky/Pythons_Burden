@@ -2,7 +2,7 @@ import pygame
 from settings import DIRECTIONS
 
 
-def handle_events(
+def handle_input_events(
     game_running: bool,
     current_direction: tuple[int, int],
     pending_direction: tuple[int, int],
