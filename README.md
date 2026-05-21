@@ -53,7 +53,7 @@ USYD COMP9001 Final Project
 | 40 | Add assets of portal, apple_question, image loader of specific size |
 | 41 | Fixed a bug where paused time incorrectly affected game timers and caused game state issues. |
 | 42 | Add auto responsive window resizing, prevent the game window from exceeding the screen boundary |
-
+| 43 | Encapsulate most of the game code to simplify the main function. |
 ## Project Structure
 
 ```text
