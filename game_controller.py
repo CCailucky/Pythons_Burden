@@ -32,6 +32,7 @@ class GameController:
         self.reset()
         self.game_started = False
         self.current_screen = SCREEN_START_INTERFACE
+        self.rules_page_index = 0
 
     ################################# RESET #################################
     # reset the game
@@ -53,7 +54,7 @@ class GameController:
         # game status
         self.game_over = False
         self.game_win = False
-        game_started = False
+        self.game_started = False
         self.game_paused = False
         self.shoot_request = False
         self.pause_start_time = None
@@ -193,7 +194,6 @@ class GameController:
         # handle button event
         game_running = self.handle_menu_action(menu_action, game_running)
 
-
         self.handle_pause_time_offset()
 
         if restart_request:
@@ -209,10 +209,6 @@ class GameController:
             self.current_screen = SCREEN_GAME
             self.game_started = True
             self.ui.add_status_message("Game started!")
-        elif menu_action == "rules":
-            self.current_screen = SCREEN_RULES_INTERFACE
-        elif menu_action == "back":
-            self.current_screen = SCREEN_START_INTERFACE
         elif menu_action == "pause":
             self.game_paused = True
             self.ui.add_status_message("Game paused")
@@ -226,7 +222,17 @@ class GameController:
             self.ui.add_status_message("Game restarted!")
         elif menu_action == "quit":
             game_running = False
-
+        # RULES PART
+        elif menu_action == "rules":
+            self.current_screen = SCREEN_RULES_INTERFACE
+            self.rules_page_index = 0
+        elif menu_action == "back":
+            self.current_screen = SCREEN_START_INTERFACE
+            self.rules_page_index = 0
+        elif menu_action == "next_rules":
+            self.rules_page_index += 1
+        elif menu_action == "prev_rules":
+            self.rules_page_index -= 1
         return game_running
 
     def handle_pause_time_offset(self) -> None:
@@ -385,7 +391,7 @@ class GameController:
             return
         # rule interface
         if self.current_screen == SCREEN_RULES_INTERFACE:
-            self.ui.draw_rules_interface(surface)
+            self.ui.draw_rules_interface(surface, self.rules_page_index)
             return
         surface.fill(BACKGROUND_COLOUR)
 

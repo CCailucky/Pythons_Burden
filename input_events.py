@@ -59,7 +59,7 @@ def handle_input_events(
                 ):
                     shoot_request = True
 
-                # movement 
+                # movement
                 if game_started and not game_over and not game_paused:
                     # Change pending direction by arrow keys.
                     # Only allow one queued turn before the next snake move.
@@ -101,8 +101,15 @@ def handle_input_events(
                     menu_action = "quit"
             # RULES INTERFACE (MOUSE EVENTS)
             elif current_screen == SCREEN_RULES_INTERFACE:
-
-                pass
+                back_rect, prev_rect, next_rect = ui.get_rules_interface_button_rects(
+                    screen_width, screen_height
+                )
+                if back_rect.collidepoint(mouse_pos):
+                    menu_action = "back"
+                elif prev_rect.collidepoint(mouse_pos):
+                    menu_action = "prev_rules"
+                elif next_rect.collidepoint(mouse_pos):
+                    menu_action = "next_rules"
             # PAUSE INTERFACE (MOUSE EVENTS)
             elif (
                 current_screen == SCREEN_GAME

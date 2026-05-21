@@ -27,10 +27,35 @@ from settings import (
     PAUSE_MENU_HINT_OFFSET_Y,
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
+    # start interface
     START_MENU_BUTTON_WIDTH,
     START_MENU_BUTTON_HEIGHT,
     START_MENU_BUTTON_GAP,
     START_MENU_BUTTON_BOTTOM_MARGIN,
+    # rule interface 1
+    RULES_PAGE_COUNT,
+    RULES_OVERLAY_ALPHA,
+    RULES_BACK_BUTTON_WIDTH,
+    RULES_BACK_BUTTON_HEIGHT,
+    RULES_BACK_BUTTON_X,
+    RULES_BACK_BUTTON_Y,
+    RULES_NAV_BUTTON_WIDTH,
+    RULES_NAV_BUTTON_HEIGHT,
+    RULES_NAV_BUTTON_SIDE_MARGIN,
+    RULES_NAV_BUTTON_BOTTOM_MARGIN,
+    RULES_TITLE_Y,
+    RULES_STORY_START_Y,
+    RULES_STORY_LINE_GAP,
+    RULES_INTRO_FONT_SIZE,
+    # rule interface 2
+    RULES_ITEM_ICON_SIZE,
+    RULES_ITEM_TEXT_OFFSET_X,
+    RULES_ITEM_LEFT_X,
+    RULES_ITEM_RIGHT_X,
+    RULES_ITEM_START_Y,
+    RULES_ITEM_ROW_GAP,
+    RULES_ITEM_TITLE_LINE_GAP,
+    RULES_ITEM_DESC_LINE_GAP,
 )
 from assets_loader import load_image
 
@@ -40,7 +65,7 @@ class UI:
         self.font = self.load_font(UI_FONT_PATH, UI_FONT_SIZE)
         self.title_font = self.load_font(UI_BOLD_FONT_PATH, UI_TITLE_FONT_SIZE)
         self.small_font = self.load_font(UI_FONT_PATH, UI_SMALL_FONT_SIZE)
-
+        self.rules_intro_font = self.load_font(UI_FONT_PATH, RULES_INTRO_FONT_SIZE)
         self.status_messages = []
 
         self.banner_image = load_image(
@@ -93,6 +118,47 @@ class UI:
         self.quit_button2_image = load_image(
             "assets/images/ui/quit_button2.png",
             (START_MENU_BUTTON_WIDTH, START_MENU_BUTTON_HEIGHT),
+        )
+
+        # RULES INTERFACE 1
+        self.back_button_image = load_image(
+            "assets/images/ui/back_button.png",
+            (RULES_BACK_BUTTON_WIDTH, RULES_BACK_BUTTON_HEIGHT),
+        )
+
+        self.prev_button_image = load_image(
+            "assets/images/ui/prev_button.png",
+            (RULES_NAV_BUTTON_WIDTH, RULES_NAV_BUTTON_HEIGHT),
+        )
+
+        self.next_button_image = load_image(
+            "assets/images/ui/next_button.png",
+            (RULES_NAV_BUTTON_WIDTH, RULES_NAV_BUTTON_HEIGHT),
+        )
+        # RULES INTERFACE 2
+        self.rules_letter_icon = load_image(
+            "assets/images/apples/A.png",
+            (RULES_ITEM_ICON_SIZE, RULES_ITEM_ICON_SIZE),
+        )
+
+        self.rules_wildcard_icon = load_image(
+            "assets/images/apples/golden_apple.png",
+            (RULES_ITEM_ICON_SIZE, RULES_ITEM_ICON_SIZE),
+        )
+
+        self.rules_bullet_icon = load_image(
+            "assets/images/items/bullet.png",
+            (RULES_ITEM_ICON_SIZE, RULES_ITEM_ICON_SIZE),
+        )
+
+        self.rules_bullet_supply_icon = load_image(
+            "assets/images/items/bulletsupply.png",
+            (RULES_ITEM_ICON_SIZE, RULES_ITEM_ICON_SIZE),
+        )
+
+        self.rules_tail_cut_icon = load_image(
+            "assets/images/items/tailcut.png",
+            (RULES_ITEM_ICON_SIZE, RULES_ITEM_ICON_SIZE),
         )
 
     def load_font(
@@ -169,6 +235,32 @@ class UI:
         )
 
         return start_rect, rules_rect, quit_rect
+
+    def get_rules_interface_button_rects(
+        self, screen_width: int, screen_height: int
+    ) -> tuple[pygame.Rect, pygame.Rect, pygame.Rect]:
+        back_rect = pygame.Rect(
+            RULES_BACK_BUTTON_X,
+            RULES_BACK_BUTTON_Y,
+            RULES_BACK_BUTTON_WIDTH,
+            RULES_BACK_BUTTON_HEIGHT,
+        )
+        prev_rect = pygame.Rect(
+            RULES_NAV_BUTTON_SIDE_MARGIN,
+            screen_height - RULES_NAV_BUTTON_HEIGHT - RULES_NAV_BUTTON_BOTTOM_MARGIN,
+            RULES_NAV_BUTTON_WIDTH,
+            RULES_NAV_BUTTON_HEIGHT,
+        )
+        next_rect = pygame.Rect(
+            screen_width - RULES_NAV_BUTTON_WIDTH - RULES_NAV_BUTTON_SIDE_MARGIN,
+            screen_height - RULES_NAV_BUTTON_HEIGHT - RULES_NAV_BUTTON_BOTTOM_MARGIN,
+            RULES_NAV_BUTTON_WIDTH,
+            RULES_NAV_BUTTON_HEIGHT,
+        )
+        return back_rect, prev_rect, next_rect
+
+    def get_rules_page_count(self) -> int:
+        return RULES_PAGE_COUNT
 
     def draw(
         self,
@@ -348,3 +440,154 @@ class UI:
         screen.blit(self.start_button_image, start_rect)
         screen.blit(self.rules_button_image, rules_rect)
         screen.blit(self.quit_button2_image, quit_rect)
+
+    def draw_rules_interface(self, screen, rules_page_index: int) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        # draw start interface as background
+        screen.blit(self.start_interface_image, (0, 0))
+
+        # dark overlay
+        overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, RULES_OVERLAY_ALPHA))
+        screen.blit(overlay, (0, 0))
+
+        # buttons
+        back_rect, prev_rect, next_rect = self.get_rules_interface_button_rects(
+            screen_width, screen_height
+        )
+
+        screen.blit(self.back_button_image, back_rect)
+        screen.blit(self.prev_button_image, prev_rect)
+        screen.blit(self.next_button_image, next_rect)
+
+        # index protection
+        if rules_page_index < 0:
+            rules_page_index = 0
+        elif rules_page_index >= self.get_rules_page_count():
+            rules_page_index = self.get_rules_page_count() - 1
+
+        # draw different rules page by index
+        if rules_page_index == 0:
+            self.draw_rules_intro_page(screen)
+        elif rules_page_index == 1:
+            self.draw_rules_controls_items_page(screen)
+        elif rules_page_index == 2:
+            self.draw_rules_combat_escape_page(screen)
+    # common func
+    def draw_rules_page_title(self, screen, title: str) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        title_text = self.title_font.render(title, True, UI_ACCENT_COLOUR)
+        title_rect = title_text.get_rect(center=(screen_width // 2, RULES_TITLE_Y))
+        screen.blit(title_text, title_rect)
+
+    def draw_rules_intro_page(self, screen) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        self.draw_rules_page_title(screen, "INTRODUCTION")
+
+        story_lines = [
+            "Python, a little snake, accidentally enters a maze called COMP9001.",
+            "Help Python collect letters, gather useful items,",
+            "defeat guardian snakes, and build the correct key sequence.",
+            "Once the sequence is complete,",
+            "an escape portal will open somewhere on the map.",
+            "Enter the portal and escape from COMP9001!",
+        ]
+
+        for i, line in enumerate(story_lines):
+            line_text = self.rules_intro_font.render(line, True, UI_TEXT_COLOUR)
+            line_rect = line_text.get_rect(
+                center=(
+                    screen_width // 2,
+                    RULES_STORY_START_Y + i * RULES_STORY_LINE_GAP,
+                )
+            )
+            screen.blit(line_text, line_rect)
+    # a helper to draw icons and descriptions
+    def draw_rules_icon_item(self, screen, icon, title, lines, x, y) -> None:
+        screen.blit(icon, (x, y))
+
+        text_x = x + RULES_ITEM_TEXT_OFFSET_X
+
+        title_surface = self.font.render(title, True, UI_ACCENT_COLOUR)
+        screen.blit(title_surface, (text_x, y))
+
+        for i, line in enumerate(lines):
+            line_surface = self.small_font.render(line, True, UI_TEXT_COLOUR)
+            screen.blit(
+                line_surface,
+                (
+                    text_x,
+                    y + RULES_ITEM_TITLE_LINE_GAP + i * RULES_ITEM_DESC_LINE_GAP,
+                ),
+            )
+
+    def draw_rules_controls_items_page(self, screen) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        title_text = self.title_font.render("CONTROLS & ITEMS", True, UI_ACCENT_COLOUR)
+        title_rect = title_text.get_rect(center=(screen_width // 2, RULES_TITLE_Y))
+        screen.blit(title_text, title_rect)
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_bullet_icon,
+            "Controls",
+            [
+                "Arrow Keys: Move Python.",
+                "F: Shoot a bullet.",
+                "ESC: Open the pause menu.",
+            ],
+            RULES_ITEM_LEFT_X,
+            RULES_ITEM_START_Y,
+        )
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_letter_icon,
+            "Letter Apple",
+            [
+                "Collect letters in the correct order.",
+                "Eating one grows Python by 1 segment.",
+            ],
+            RULES_ITEM_RIGHT_X,
+            RULES_ITEM_START_Y,
+        )
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_wildcard_icon,
+            "Golden Apple",
+            [
+                "Works as a wildcard letter.",
+                "Becomes the next required letter.",
+            ],
+            RULES_ITEM_LEFT_X,
+            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP,
+        )
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_bullet_supply_icon,
+            "Bullet Supply",
+            [
+                "Adds extra bullets.",
+                "Respawns over time.",
+            ],
+            RULES_ITEM_RIGHT_X,
+            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP,
+        )
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_tail_cut_icon,
+            "TailCut",
+            [
+                "Removes 1-3 collected letters.",
+                "Also cuts Python's tail.",
+            ],
+            RULES_ITEM_LEFT_X,
+            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP * 2,
+        )
