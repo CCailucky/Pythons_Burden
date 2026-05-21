@@ -10,6 +10,7 @@ def handle_input_events(
     game_started: bool,
     game_paused: bool,
     ui,
+    display,
 ) -> tuple[bool, tuple[int, int], bool, bool, bool, bool]:
     restart_request = False
     shoot_request = False
@@ -17,7 +18,7 @@ def handle_input_events(
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_running = False
-
+        # KEYBOARD EVENTS
         if event.type == pygame.KEYDOWN:
 
             # press space to start the game
@@ -75,6 +76,28 @@ def handle_input_events(
                         and current_direction != DIRECTIONS["LEFT"]
                     ):
                         pending_direction = DIRECTIONS["RIGHT"]
+        # MOUSE EVENTS
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # pause menu
+            if game_started and game_paused and not game_over:
+                # convert to game surface coordinate
+                mouse_pos = display.convert_mouse_pos_to_game_surface(event.pos)
+
+                screen_width, screen_height = display.game_surface.get_size()
+
+                resume_rect, reset_rect, quit_rect = ui.get_pause_menu_button_rects(
+                    screen_width, screen_height
+                )
+
+                if resume_rect.collidepoint(mouse_pos):
+                    game_paused = False
+                    ui.add_status_message("Game resumed")
+
+                elif reset_rect.collidepoint(mouse_pos):
+                    restart_request = True
+
+                elif quit_rect.collidepoint(mouse_pos):
+                    game_running = False
     return (
         game_running,
         pending_direction,

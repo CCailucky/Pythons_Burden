@@ -10,7 +10,7 @@ def main():
     # input->logic->draw :)
     while game_running:
         # input
-        game_running = game.handle_events(game_running)
+        game_running = game.handle_events(game_running, display)
         # logic
         game.update()
         # draw

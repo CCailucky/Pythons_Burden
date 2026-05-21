@@ -56,6 +56,7 @@ USYD COMP9001 Final Project
 | 43 | Encapsulate most of the game code to simplify the main function. |
 | 44 | Encapsulate some code of game_controller |
 | 45 | add pause menu and modify some keys to pause, resume and quit |
+| 46 | add UI item introduction |
 ## Project Structure
 
 ```text

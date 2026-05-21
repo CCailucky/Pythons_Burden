@@ -165,7 +165,7 @@ class GameController:
             else:
                 self.ui.add_status_message("Nothing to cut")
 
-    def handle_events(self, game_running: bool) -> bool:
+    def handle_events(self, game_running: bool, display) -> bool:
         (
             game_running,
             self.pending_direction,
@@ -181,6 +181,7 @@ class GameController:
             self.game_started,
             self.game_paused,
             self.ui,
+            display
         )
 
         self.handle_pause_time_offset()
@@ -239,6 +240,7 @@ class GameController:
             and not self.game_over
             and not self.game_win
         )
+
     def can_draw_pause_overlay(self) -> bool:
         return (
             self.game_started
@@ -246,6 +248,7 @@ class GameController:
             and not self.game_over
             and not self.game_win
         )
+
     # for main.py to update the game logic
     def update(self) -> None:
         if not self.can_update_game():
