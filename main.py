@@ -3,7 +3,7 @@ import pygame
 from settings import FPS
 from game_initialization import initialize_game
 
- 
+
 def main():
     display, clock, game = initialize_game()
     game_running = True

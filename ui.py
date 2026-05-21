@@ -346,11 +346,10 @@ class UI:
         screen.blit(control_text, (control_x, control_y))
         pause_text = self.small_font.render("ESC: Pause / Resume", True, UI_TEXT_COLOUR)
         screen.blit(pause_text, (control_x, control_y + 28))
-        start_text = self.small_font.render("SPACE: Start", True, UI_TEXT_COLOUR)
-        screen.blit(start_text, (control_x, control_y + 56))
         shoot_text = self.small_font.render("F: Shoot Bullet", True, UI_TEXT_COLOUR)
-        screen.blit(shoot_text, (control_x, control_y + 84))
-
+        screen.blit(shoot_text, (control_x, control_y + 56))
+        restart_text = self.small_font.render("R: Restart (Game Over)", True, UI_TEXT_COLOUR)
+        screen.blit(restart_text, (control_x, control_y + 84))
     def draw_controls_separator(self, screen) -> None:
         line_x = UI_X + 255
         line_top = UI_Y + 145

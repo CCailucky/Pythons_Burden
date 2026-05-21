@@ -290,7 +290,8 @@ class GameController:
 
     def can_draw_pause_overlay(self) -> bool:
         return (
-            self.game_started
+            self.current_screen == SCREEN_GAME
+            and self.game_started
             and self.game_paused
             and not self.game_over
             and not self.game_win
