@@ -30,11 +30,10 @@ class Apple:
         self.spawn_time = pygame.time.get_ticks()
         self.lifetime = self.get_random_lifetime()
 
-        self.image = load_grid_image(f"assets/images/apples/{self.letter}.png")
-        # fallback image, used when a specific letter image is missing
-        if self.image is None:
+        if self.letter == "?":
             self.image = load_grid_image("assets/images/apples/apple_question.png")
-
+        else:
+            self.image = load_grid_image(f"assets/images/apples/{self.letter}.png")
     # single apple
     def spawn_and_get_apple_position(
         self,
