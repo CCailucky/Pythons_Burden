@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Python's Burden: Escape from COMP9001** is a Pygame-based snake adventure game developed for a Python programming final project
+**Python's Burden: Escape from COMP9001** is a Pygame-based snake adventure game developed for a Python programming final project.
 
 The player controls Python, a little snake trapped in the COMP9001 maze. The goal is to collect letters in the correct order, use items and bullets, survive guardian snakes, complete the target sequence, and enter the escape portal to win the game.
 ## Requirements
