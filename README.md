@@ -55,6 +55,28 @@ python3 main.py
 - Exit portal win condition
 - Pause menu with keyboard and mouse controls
 - Pixel-art assets and custom UI panels
+
+## How to Play
+
+1. Click **Start** on the start interface to enter the game.
+
+2. Control Python with the arrow keys and collect letters in the correct order to match the target sequence.
+
+3. Each collected letter is added to Python's body. Eating a letter also makes Python grow by one segment.
+
+4. Use special items to help you:
+   - **Wildcard Letter** becomes the next required letter in the sequence.
+   - **TailCut** removes 1-3 collected letters and cuts Python's tail.
+   - **BulletSupply** gives extra bullets.
+
+5. Press **F** to shoot bullets. Bullets can destroy letters, items, and guardian snakes.
+
+6. Guardian snakes move around the maze. Avoid them or use bullets to defeat them.
+
+7. When the target sequence is completed, an escape portal will open somewhere on the map.
+
+8. Enter the portal to escape from COMP9001 and win the game.
+
 ## Controls
 
 - Arrow Keys: Move Python
