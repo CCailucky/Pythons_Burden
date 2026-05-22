@@ -348,8 +348,11 @@ class UI:
         screen.blit(pause_text, (control_x, control_y + 28))
         shoot_text = self.small_font.render("F: Shoot Bullet", True, UI_TEXT_COLOUR)
         screen.blit(shoot_text, (control_x, control_y + 56))
-        restart_text = self.small_font.render("R: Restart (Game Over)", True, UI_TEXT_COLOUR)
+        restart_text = self.small_font.render(
+            "R: Restart (Game Over)", True, UI_TEXT_COLOUR
+        )
         screen.blit(restart_text, (control_x, control_y + 84))
+
     def draw_controls_separator(self, screen) -> None:
         line_x = UI_X + 255
         line_top = UI_Y + 145
@@ -517,9 +520,9 @@ class UI:
         if rules_page_index == 0:
             self.draw_rules_intro_page(screen)
         elif rules_page_index == 1:
-            self.draw_rules_controls_items_page(screen)
-        elif rules_page_index == 2:
             self.draw_rules_sequence_escape_page(screen)
+        elif rules_page_index == 2:
+            self.draw_rules_controls_items_page(screen)
         elif rules_page_index == 3:
             self.draw_rules_fight_survival_page(screen)
 
@@ -574,74 +577,6 @@ class UI:
             )
 
     # page 2
-    def draw_rules_controls_items_page(self, screen) -> None:
-        screen_width, screen_height = screen.get_size()
-
-        title_text = self.title_font.render("CONTROLS & ITEMS", True, UI_ACCENT_COLOUR)
-        title_rect = title_text.get_rect(center=(screen_width // 2, RULES_TITLE_Y))
-        screen.blit(title_text, title_rect)
-
-        self.draw_rules_icon_item(
-            screen,
-            self.rules_bullet_icon,
-            "Controls",
-            [
-                "Arrow Keys: Move Python.",
-                "F: Shoot a bullet.",
-                "ESC: Open the pause menu.",
-            ],
-            RULES_ITEM_LEFT_X,
-            RULES_ITEM_START_Y,
-        )
-
-        self.draw_rules_icon_item(
-            screen,
-            self.rules_letter_icon,
-            "Letter",
-            [
-                "Collect letters in the correct order.",
-                "Eating one grows Python by 1 segment.",
-            ],
-            RULES_ITEM_RIGHT_X,
-            RULES_ITEM_START_Y,
-        )
-
-        self.draw_rules_icon_item(
-            screen,
-            self.rules_wildcard_icon,
-            "Wildcard Letter",
-            [
-                "Becomes the next required letter.",
-            ],
-            RULES_ITEM_LEFT_X,
-            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP,
-        )
-
-        self.draw_rules_icon_item(
-            screen,
-            self.rules_bullet_supply_icon,
-            "Bullet Supply",
-            [
-                "Adds extra bullets.",
-                "Respawns over time.",
-            ],
-            RULES_ITEM_RIGHT_X,
-            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP,
-        )
-
-        self.draw_rules_icon_item(
-            screen,
-            self.rules_tail_cut_icon,
-            "TailCut",
-            [
-                "Removes 1-3 collected letters.",
-                "Also cuts Python's tail.",
-            ],
-            RULES_ITEM_LEFT_X,
-            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP * 2,
-        )
-
-    # page 3
     def draw_rules_sequence_escape_page(self, screen) -> None:
         screen_width, screen_height = screen.get_size()
 
@@ -713,6 +648,74 @@ class UI:
                 ),
             )
 
+    # page 3
+    def draw_rules_controls_items_page(self, screen) -> None:
+        screen_width, screen_height = screen.get_size()
+
+        title_text = self.title_font.render("CONTROLS & ITEMS", True, UI_ACCENT_COLOUR)
+        title_rect = title_text.get_rect(center=(screen_width // 2, RULES_TITLE_Y))
+        screen.blit(title_text, title_rect)
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_bullet_icon,
+            "Controls",
+            [
+                "Arrow Keys: Move Python.",
+                "F: Shoot a bullet.",
+                "ESC: Open the pause menu.",
+            ],
+            RULES_ITEM_LEFT_X,
+            RULES_ITEM_START_Y,
+        )
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_letter_icon,
+            "Letter",
+            [
+                "Collect letters in the correct order.",
+                "Eating one grows Python by 1 segment.",
+            ],
+            RULES_ITEM_RIGHT_X,
+            RULES_ITEM_START_Y,
+        )
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_wildcard_icon,
+            "Wildcard Letter",
+            [
+                "Becomes the next required letter.",
+            ],
+            RULES_ITEM_LEFT_X,
+            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP,
+        )
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_bullet_supply_icon,
+            "Bullet Supply",
+            [
+                "Adds extra bullets.",
+                "Respawns over time.",
+            ],
+            RULES_ITEM_RIGHT_X,
+            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP,
+        )
+
+        self.draw_rules_icon_item(
+            screen,
+            self.rules_tail_cut_icon,
+            "TailCut",
+            [
+                "Removes 1-3 collected letters.",
+                "Also cuts Python's tail.",
+            ],
+            RULES_ITEM_LEFT_X,
+            RULES_ITEM_START_Y + RULES_ITEM_ROW_GAP * 2,
+        )
+
     # page 4
     def draw_rules_fight_survival_page(self, screen) -> None:
         screen_width, screen_height = screen.get_size()
@@ -765,7 +768,6 @@ class UI:
             UI_TEXT_COLOUR,
         )
         screen.blit(heart_text_1, (left_x + 80, info_y + 90))
-        
 
         screen.blit(self.rules_quantum_teleport_icon, (left_x, info_y + 160))
         teleport_text = self.small_font.render(
